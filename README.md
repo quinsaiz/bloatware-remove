@@ -40,8 +40,8 @@ This tool allows you to quickly and conveniently remove or disable unnecessary s
 #### Instructions for Linux  
 1. **Download the script**:  
     ```bash  
-      git clone https://github.com/quinsaiz/miui-clean.git  
-      cd miui-clean
+    git clone https://github.com/quinsaiz/miui-clean.git  
+    cd miui-clean
     ```
 2. **Make it executable**:
     ```bash
@@ -51,15 +51,15 @@ This tool allows you to quickly and conveniently remove or disable unnecessary s
     ```bash
     ./script.sh
     ```
-    **Select an option:** Use numbers to navigate the menu (e.g., 1 for MIUI apps).
+**Select an option:** Use numbers to navigate the menu (e.g., 1 for MIUI apps).
 
-    **Actions:** Choose "Remove" or "Disable" for each app.
+**Actions:** Choose "Remove" or "Disable" for each app.
 
 #### Instructions for Windows
 
 1.  **Download the script:**
-    Download the ZIP from GitHub and extract it.
-    Or run:
+Download the ZIP from GitHub and extract it.
+Or run:
     ```cmd
     git clone https://github.com/quinsaiz/miui-clean.git  
     cd miui-clean 
@@ -73,9 +73,9 @@ This tool allows you to quickly and conveniently remove or disable unnecessary s
     ```cmd
     script.bat
     ```
-    **Select an option:** Enter the menu number (e.g., 1 for MIUI apps).
+**Select an option:** Enter the menu number (e.g., 1 for MIUI apps).
 
-    **Actions:** Choose "Remove" or "Disable".
+**Actions:** Choose "Remove" or "Disable".
 
 ### Important Notes
 
@@ -107,7 +107,7 @@ If you like this project, please give it a star on GitHub!
 
 [GitHub stars](https://img.shields.io/github/stars/quinsaiz/miui-clean?style=social)
 
-## Ukrainian / Українська
+## Українська
 
 ### Опис
 
@@ -142,32 +142,34 @@ If you like this project, please give it a star on GitHub!
     ```bash
     ./script.sh  
     ```
-    **Виберіть опцію:** Використовуйте цифри для навігації по меню (наприклад, 1 для MIUI-програм).
+**Виберіть опцію:** Використовуйте цифри для навігації по меню (наприклад, 1 для MIUI-програм).
 
-    **Дії:** Виберіть "Видалити", "Відновити", "Відключити", "Включити" для кожної програми.
+**Дії:** Виберіть "Видалити", "Відновити", "Відключити", "Включити" для кожної програми.
 
 #### Інструкція для Windows
 
 1. **Завантажте скрипт:**
-    Завантажте ZIP-архів з GitHub та розпакуйте його.
-    Або виконайте:
+Завантажте ZIP-архів з GitHub та розпакуйте його.
+Або виконайте:
     ```cmd
     git clone https://github.com/quinsaiz/miui-clean.git  
     cd miui-clean
     ```
-
 2. **Відкрийте CMD:** 
-    Перейдіть до папки зі скриптом у командному рядку.
+Перейдіть до папки зі скриптом у командному рядку.
+
     ```cmd
     cd шлях\до\miui-clean  
     ```
 3. **Запустіть скрипт:**
-    ```cmd
-    script.bat 
-    ```
-    **Виберіть опцію:** Введіть номер меню (наприклад, 1 для MIUI-програм).
 
-    **Дії:** Виберіть "Видалити" або "Відключити".
+    ```cmd
+    script.bat
+    ```
+
+**Виберіть опцію:** Введіть номер меню (наприклад, 1 для MIUI-програм).
+
+**Дії:** Виберіть "Видалити" або "Відключити".
 
 ### Важливі примітки
 
@@ -192,3 +194,9 @@ miui-clean/
 ### Ліцензія
 
 Цей проєкт ліцензовано за [MIT License](https://github.com/quinsaiz/miui-clean?tab=MIT-1-ov-file).
+
+### Підтримка
+
+Якщо Вам подобається цей проєкт, можете поставити зірку!
+
+[GitHub зірки](https://img.shields.io/github/stars/quinsaiz/miui-clean?style=social)
