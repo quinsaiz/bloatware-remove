@@ -492,10 +492,10 @@ check_all_status() {
                     11) name="Стрічка віджетів MinusScreen" ;;
                     12) name="ShareMe" ;;
                     13) name="Завантаження" ;;
-                    14) name="Теми" ;;
-                    15) name="Компас" ;;
+                    14) name="Компас" ;;
+                    15) name="Очищувач" ;;
                     16) name="Сканер QR" ;;
-                    17) name="Очищувач" ;;
+                    17) name="Теми" ;;
                 esac ;;
             "utilities_menu")
                 case $index in
