@@ -53,28 +53,18 @@ goto main_menu
 :miui_menu
 cls
 echo === Системні програми MIUI/HyperOS ===
-call :check_status "com.xiaomi.mipicks" mipicks_status
-call :check_status "com.mi.globalbrowser" browser_status
-call :check_status "com.xiaomi.smarthome" smarthome_status
-call :check_status "com.miui.huanji" huanji_status
-call :check_status "com.miui.player" player_status
-call :check_status "com.miui.video com.miui.videoplayer" video_status
-call :check_status "com.mi.global.pocobbs" pocobbs_status
-call :check_status "com.mi.global.pocostore" pocostore_status
-call :check_status "com.xiaomi.glgm" glgm_status
-call :check_status "com.miui.android.fashiongallery" fashiongallery_status
-call :check_status "com.mi.globalminusscreen com.mi.android.globalminusscreen" minusscreen_status
-echo 1) GetApps (com.xiaomi.mipicks) - Статус: %mipicks_status%
-echo 2) Mi Browser (com.mi.globalbrowser) - Статус: %browser_status%
-echo 3) Mi Home (com.xiaomi.smarthome) - Статус: %smarthome_status%
-echo 4) Mi Mover (com.miui.huanji) - Статус: %huanji_status%
-echo 5) Mi Music (com.miui.player) - Статус: %player_status%
-echo 6) Mi Video (com.miui.video com.miui.videoplayer) - Статус: %video_status%
-echo 7) POCO Community (com.mi.global.pocobbs) - Статус: %pocobbs_status%
-echo 8) POCO Store (com.mi.global.pocostore) - Статус: %pocostore_status%
-echo 9) Ігри Xiaomi (com.xiaomi.glgm) - Статус: %glgm_status%
-echo 10) Карусель шпалер (com.miui.android.fashiongallery) - Статус: %fashiongallery_status%
-echo 11) Стрічка віджетів MinusScreen (com.mi.globalminusscreen com.mi.android.globalminusscreen) - Статус: %minusscreen_status%
+echo 1) GetApps (com.xiaomi.mipicks)
+echo 2) Mi Browser (com.mi.globalbrowser)
+echo 3) Mi Home (com.xiaomi.smarthome)
+echo 4) Mi Mover (com.miui.huanji)
+echo 5) Mi Music (com.miui.player)
+echo 6) Mi Video (com.miui.video com.miui.videoplayer)
+echo 7) POCO Community (com.mi.global.pocobbs)
+echo 8) POCO Store (com.mi.global.pocostore)
+echo 9) Ігри Xiaomi (com.xiaomi.glgm)
+echo 10) Карусель шпалер (com.miui.android.fashiongallery)
+echo 11) Стрічка віджетів MinusScreen (com.mi.globalminusscreen com.mi.android.globalminusscreen)
+echo 12) Видалити вибірково
 echo 0) Повернутися до головного меню
 echo -------------------------
 set /p app_choice="Виберіть програму: "
@@ -89,78 +79,47 @@ if "%app_choice%"=="8" call :action_menu "POCO Store" "com.mi.global.pocostore" 
 if "%app_choice%"=="9" call :action_menu "Ігри Xiaomi" "com.xiaomi.glgm" "Видалити" "miui_menu"
 if "%app_choice%"=="10" call :action_menu "Карусель шпалер" "com.miui.android.fashiongallery" "Видалити" "miui_menu"
 if "%app_choice%"=="11" call :action_menu "Стрічка віджетів MinusScreen" "com.mi.globalminusscreen com.mi.android.globalminusscreen" "Видалити" "miui_menu"
+if "%app_choice%"=="12" call :selective_uninstall "miui_menu" "com.xiaomi.mipicks com.mi.globalbrowser com.xiaomi.smarthome com.miui.huanji com.miui.player com.miui.video com.miui.videoplayer com.mi.global.pocobbs com.mi.global.pocostore com.xiaomi.glgm com.miui.android.fashiongallery com.mi.globalminusscreen com.mi.android.globalminusscreen"
 if "%app_choice%"=="0" goto main_menu
 goto miui_menu
 
 :utilities_menu
 cls
 echo === Службові утиліти (критичні) ===
-call :check_status "com.android.bluetoothmidiservice" bluetoothmidi_status
-call :check_status "com.google.android.apps.turbo" turbo_status
-call :check_status "com.android.mms.service" mms_status
-call :check_status "com.qualcomm.atfwd" atfwd_status
-call :check_status "com.qualcomm.qti.uceShimService" uce_status
-call :check_status "com.miui.hybrid com.miui.hybrid.accessory" hybrid_status
-call :check_status "com.google.android.marvin.talkback" talkback_status
-call :check_status "com.miui.vsimcore" vsimcore_status
-call :check_status "com.wapi.wapicertmanage" wapi_status
-call :check_status "com.miui.analytics" analytics_status
-call :check_status "com.quicinc.voice.activation" voice_status
-call :check_status "com.miui.yellowpage" yellowpage_status
-call :check_status "com.miui.bugreport com.miui.miservice" bugreport_status
-call :check_status "com.google.android.onetimeinitializer com.google.android.partnersetup" onetime_status
-call :check_status "com.xiaomi.payment com.mipay.wallet.in" payment_status
-call :check_status "com.xiaomi.mirecycle" mirecycle_status
-call :check_status "com.tencent.soter.soterserver" soter_status
-call :check_status "com.bsp.catchlog" catchlog_status
-call :check_status "com.android.stk" stk_status
-call :check_status "com.android.internal.systemui.navbar.gestural com.android.internal.systemui.navbar.gestural_extra_wide_back com.android.internal.systemui.navbar.gestural_narrow_back com.android.internal.systemui.navbar.gestural_wide_back com.android.internal.systemui.navbar.threebutton" navbar_status
-call :check_status "com.miui.daemon" daemon_status
-call :check_status "com.xiaomi.joyose" joyose_status
-call :check_status "com.android.hotwordenrollment.okgoogle com.android.hotwordenrollment.xgoogle" hotword_status
-call :check_status "com.miui.msa.global" msa_status
-call :check_status "com.android.bookmarkprovider com.android.providers.partnerbookmarks" bookmark_status
-call :check_status "com.google.android.printservice.recommendation" printservice_status
-call :check_status "com.miui.cloudbackup com.miui.cloudservice com.miui.cloudservice.sysbase" cloud_status
-call :check_status "com.android.wallpaperbackup" wallpaperbackup_status
-call :check_status "com.miui.touchassistant" touchassistant_status
-call :check_status "com.android.bips com.android.printspooler" printspooler_status
-call :check_status "com.miui.personalassistant" personalassistant_status
-call :check_status "com.android.traceur" traceur_status
-call :check_status "com.android.theme.font.notoserifsource" notoserif_status
-echo 1) Bluetooth MIDI (com.android.bluetoothmidiservice) - Статус: %bluetoothmidi_status%
-echo 2) Device Health Services (com.google.android.apps.turbo) - Статус: %turbo_status%
-echo 3) MMS служба (com.android.mms.service) - Статус: %mms_status%
-echo 4) Qualcomm Miracast (com.qualcomm.atfwd) - Статус: %atfwd_status%
-echo 5) Qualcomm RCS повідомлення (com.qualcomm.qti.uceShimService) - Статус: %uce_status%
-echo 6) Quick Apps (com.miui.hybrid com.miui.hybrid.accessory) - Статус: %hybrid_status%
-echo 7) TalkBack (com.google.android.marvin.talkback) - Статус: %talkback_status%
-echo 8) Китайські віртуальні картки (com.miui.vsimcore) - Статус: %vsimcore_status%
-echo 9) Китайський варіант Wi-Fi (com.wapi.wapicertmanage) - Статус: %wapi_status%
-echo 10) Аналітика MIUI (com.miui.analytics) - Статус: %analytics_status%
-echo 11) Голосова активація (com.quicinc.voice.activation) - Статус: %voice_status%
-echo 12) Китайський оприділяч номера (com.miui.yellowpage) - Статус: %yellowpage_status%
-echo 13) Звіти про помилки та зворотній зв'язок (com.miui.bugreport com.miui.miservice) - Статус: %bugreport_status%
-echo 14) Ініціалізація Google (com.google.android.onetimeinitializer com.google.android.partnersetup) - Статус: %onetime_status%
-echo 15) Китайський Mi Pay (com.xiaomi.payment com.mipay.wallet.in) - Статус: %payment_status%
-echo 16) Китайський акційний сервіс (com.xiaomi.mirecycle) - Статус: %mirecycle_status%
-echo 17) Китайський сервіс підтвердження платежів (com.tencent.soter.soterserver) - Статус: %soter_status%
-echo 18) Логи батареї Catchlog (com.bsp.catchlog) - Статус: %catchlog_status%
-echo 19) Меню SIM-карти (com.android.stk) - Статус: %stk_status%
-echo 20) Навігаційні жести (com.android.internal.systemui.navbar.gestural ...) - Статус: %navbar_status%
-echo 21) Оптимізація MIUI Daemon (com.miui.daemon) - Статус: %daemon_status%
-echo 22) Оптимізація процесів (com.xiaomi.joyose) - Статус: %joyose_status%
-echo 23) Очікування OK Google (com.android.hotwordenrollment.okgoogle com.android.hotwordenrollment.xgoogle) - Статус: %hotword_status%
-echo 24) Реклама MIUI (com.miui.msa.global) - Статус: %msa_status%
-echo 25) Рекламні закладки (com.android.bookmarkprovider com.android.providers.partnerbookmarks) - Статус: %bookmark_status%
-echo 26) Рекомендації друку Google (com.google.android.printservice.recommendation) - Статус: %printservice_status%
-echo 27) Резервна копія у хмарі (com.miui.cloudbackup com.miui.cloudservice com.miui.cloudservice.sysbase) - Статус: %cloud_status%
-echo 28) Резервне копіювання шпалер (com.android.wallpaperbackup) - Статус: %wallpaperbackup_status%
-echo 29) Сенсорний помічник (com.miui.touchassistant) - Статус: %touchassistant_status%
-echo 30) Служба друку (com.android.bips com.android.printspooler) - Статус: %printspooler_status%
-echo 31) Стрічка віджетів App vault (com.miui.personalassistant) - Статус: %personalassistant_status%
-echo 32) Трасування системи (com.android.traceur) - Статус: %traceur_status%
-echo 33) Шрифт Noto Serif (com.android.theme.font.notoserifsource) - Статус: %notoserif_status%
+echo 1) Bluetooth MIDI (com.android.bluetoothmidiservice)
+echo 2) Device Health Services (com.google.android.apps.turbo)
+echo 3) MMS служба (com.android.mms.service)
+echo 4) Qualcomm Miracast (com.qualcomm.atfwd)
+echo 5) Qualcomm RCS повідомлення (com.qualcomm.qti.uceShimService)
+echo 6) Quick Apps (com.miui.hybrid com.miui.hybrid.accessory)
+echo 7) TalkBack (com.google.android.marvin.talkback)
+echo 8) Китайські віртуальні картки (com.miui.vsimcore)
+echo 9) Китайський варіант Wi-Fi (com.wapi.wapicertmanage)
+echo 10) Аналітика MIUI (com.miui.analytics)
+echo 11) Голосова активація (com.quicinc.voice.activation)
+echo 12) Китайський оприділяч номера (com.miui.yellowpage)
+echo 13) Звіти про помилки та зворотній зв'язок (com.miui.bugreport com.miui.miservice)
+echo 14) Ініціалізація Google (com.google.android.onetimeinitializer com.google.android.partnersetup)
+echo 15) Китайський Mi Pay (com.xiaomi.payment com.mipay.wallet.in)
+echo 16) Китайський акційний сервіс (com.xiaomi.mirecycle)
+echo 17) Китайський сервіс підтвердження платежів (com.tencent.soter.soterserver)
+echo 18) Логи батареї Catchlog (com.bsp.catchlog)
+echo 19) Меню SIM-карти (com.android.stk)
+echo 20) Навігаційні жести (com.android.internal.systemui.navbar.gestural ...)
+echo 21) Оптимізація MIUI Daemon (com.miui.daemon)
+echo 22) Оптимізація процесів (com.xiaomi.joyose)
+echo 23) Очікування OK Google (com.android.hotwordenrollment.okgoogle com.android.hotwordenrollment.xgoogle)
+echo 24) Реклама MIUI (com.miui.msa.global)
+echo 25) Рекламні закладки (com.android.bookmarkprovider com.android.providers.partnerbookmarks)
+echo 26) Рекомендації друку Google (com.google.android.printservice.recommendation)
+echo 27) Резервна копія у хмарі (com.miui.cloudbackup com.miui.cloudservice com.miui.cloudservice.sysbase)
+echo 28) Резервне копіювання шпалер (com.android.wallpaperbackup)
+echo 29) Сенсорний помічник (com.miui.touchassistant)
+echo 30) Служба друку (com.android.bips com.android.printspooler)
+echo 31) Стрічка віджетів App vault (com.miui.personalassistant)
+echo 32) Трасування системи (com.android.traceur)
+echo 33) Шрифт Noto Serif (com.android.theme.font.notoserifsource)
+echo 34) Видалити вибірково
 echo 0) Повернутися до головного меню
 echo -------------------------
 set /p app_choice="Виберіть програму: "
@@ -197,46 +156,31 @@ if "%app_choice%"=="30" call :action_menu "Служба друку" "com.android
 if "%app_choice%"=="31" call :action_menu "Стрічка віджетів App vault" "com.miui.personalassistant" "Відключити" "utilities_menu"
 if "%app_choice%"=="32" call :action_menu "Трасування системи" "com.android.traceur" "Відключити" "utilities_menu"
 if "%app_choice%"=="33" call :action_menu "Шрифт Noto Serif" "com.android.theme.font.notoserifsource" "Відключити" "utilities_menu"
+if "%app_choice%"=="34" call :selective_uninstall "utilities_menu" "com.android.bluetoothmidiservice com.google.android.apps.turbo com.android.mms.service com.qualcomm.atfwd com.qualcomm.qti.uceShimService com.miui.hybrid com.miui.hybrid.accessory com.google.android.marvin.talkback com.miui.vsimcore com.wapi.wapicertmanage com.miui.analytics com.quicinc.voice.activation com.miui.yellowpage com.miui.bugreport com.miui.miservice com.google.android.onetimeinitializer com.google.android.partnersetup com.xiaomi.payment com.mipay.wallet.in com.xiaomi.mirecycle com.tencent.soter.soterserver com.bsp.catchlog com.android.stk com.android.internal.systemui.navbar.gestural com.android.internal.systemui.navbar.gestural_extra_wide_back com.android.internal.systemui.navbar.gestural_narrow_back com.android.internal.systemui.navbar.gestural_wide_back com.android.internal.systemui.navbar.threebutton com.miui.daemon com.xiaomi.joyose com.android.hotwordenrollment.okgoogle com.android.hotwordenrollment.xgoogle com.miui.msa.global com.android.bookmarkprovider com.android.providers.partnerbookmarks com.google.android.printservice.recommendation com.miui.cloudbackup com.miui.cloudservice com.miui.cloudservice.sysbase com.android.wallpaperbackup com.miui.touchassistant com.android.bips com.android.printspooler com.miui.personalassistant com.android.traceur com.android.theme.font.notoserifsource"
 if "%app_choice%"=="0" goto main_menu
 goto utilities_menu
 
 :google_menu
 cls
 echo === Програми від Google ===
-call :check_status "com.google.android.projection.gearhead" auto_status
-call :check_status "com.android.chrome" chrome_status
-call :check_status "com.google.android.gm" gmail_status
-call :check_status "com.google.android.apps.googleassistant" assistant_status
-call :check_status "com.google.android.apps.tachyon" duo_status
-call :check_status "com.google.android.apps.nbu.files" files_status
-call :check_status "com.google.android.apps.maps" maps_status
-call :check_status "com.google.android.music" music_status
-call :check_status "com.google.android.apps.subscriptions.red" one_status
-call :check_status "com.google.android.apps.docs" drive_status
-call :check_status "com.google.android.googlequicksearchbox" search_status
-call :check_status "com.google.android.videos" videos_status
-call :check_status "com.google.android.apps.healthdata" health_status
-call :check_status "com.google.android.apps.safetyhub" safetyhub_status
-call :check_status "com.google.android.apps.youtube" youtube_status
-call :check_status "com.google.android.apps.youtube.music" ytmusic_status
-call :check_status "com.google.android.apps.wellbeing" wellbeing_status
-echo 1) Android Auto (com.google.android.projection.gearhead) - Статус: %auto_status%
-echo 2) Chrome (com.android.chrome) - Статус: %chrome_status%
-echo 3) Gmail (com.google.android.gm) - Статус: %gmail_status%
-echo 4) Google Assistant (com.google.android.apps.googleassistant) - Статус: %assistant_status%
-echo 5) Google Duo (com.google.android.apps.tachyon) - Статус: %duo_status%
-echo 6) Google Files (com.google.android.apps.nbu.files) - Статус: %files_status%
-echo 7) Google Maps (com.google.android.apps.maps) - Статус: %maps_status%
-echo 8) Google Music (com.google.android.music) - Статус: %music_status%
-echo 9) Google One (com.google.android.apps.subscriptions.red) - Статус: %one_status%
-echo 10) Google Drive (com.google.android.apps.docs) - Статус: %drive_status%
-echo 11) Google Search (com.google.android.googlequicksearchbox) - Статус: %search_status%
-echo 12) Google Videos (com.google.android.videos) - Статус: %videos_status%
-echo 13) Health Connect (com.google.android.apps.healthdata) - Статус: %health_status%
-echo 14) Safety Hub (com.google.android.apps.safetyhub) - Статус: %safetyhub_status%
-echo 15) YouTube (com.google.android.apps.youtube) - Статус: %youtube_status%
-echo 16) YouTube Music (com.google.android.apps.youtube.music) - Статус: %ytmusic_status%
-echo 17) Цифрове благополуччя (com.google.android.apps.wellbeing) - Статус: %wellbeing_status%
+echo 1) Android Auto (com.google.android.projection.gearhead)
+echo 2) Chrome (com.android.chrome)
+echo 3) Gmail (com.google.android.gm)
+echo 4) Google Assistant (com.google.android.apps.googleassistant)
+echo 5) Google Duo (com.google.android.apps.tachyon)
+echo 6) Google Files (com.google.android.apps.nbu.files)
+echo 7) Google Maps (com.google.android.apps.maps)
+echo 8) Google Music (com.google.android.music)
+echo 9) Google One (com.google.android.apps.subscriptions.red)
+echo 10) Google Drive (com.google.android.apps.docs)
+echo 11) Google Search (com.google.android.googlequicksearchbox)
+echo 12) Google Videos (com.google.android.videos)
+echo 13) Health Connect (com.google.android.apps.healthdata)
+echo 14) Safety Hub (com.google.android.apps.safetyhub)
+echo 15) YouTube (com.google.android.youtube)
+echo 16) YouTube Music (com.google.android.apps.youtube.music)
+echo 17) Цифрове благополуччя (com.google.android.apps.wellbeing)
+echo 18) Видалити вибірково
 echo 0) Повернутися до головного меню
 echo -------------------------
 set /p app_choice="Виберіть програму: "
@@ -254,35 +198,27 @@ if "%app_choice%"=="11" call :action_menu "Google Search" "com.google.android.go
 if "%app_choice%"=="12" call :action_menu "Google Videos" "com.google.android.videos" "Видалити" "google_menu"
 if "%app_choice%"=="13" call :action_menu "Health Connect" "com.google.android.apps.healthdata" "Видалити" "google_menu"
 if "%app_choice%"=="14" call :action_menu "Safety Hub" "com.google.android.apps.safetyhub" "Видалити" "google_menu"
-if "%app_choice%"=="15" call :action_menu "YouTube" "com.google.android.apps.youtube" "Видалити" "google_menu"
+if "%app_choice%"=="15" call :action_menu "YouTube" "com.google.android.youtube" "Видалити" "google_menu"
 if "%app_choice%"=="16" call :action_menu "YouTube Music" "com.google.android.apps.youtube.music" "Видалити" "google_menu"
 if "%app_choice%"=="17" call :action_menu "Цифрове благополуччя" "com.google.android.apps.wellbeing" "Видалити" "google_menu"
+if "%app_choice%"=="18" call :selective_uninstall "google_menu" "com.google.android.projection.gearhead com.android.chrome com.google.android.gm com.google.android.apps.googleassistant com.google.android.apps.tachyon com.google.android.apps.nbu.files com.google.android.apps.maps com.google.android.music com.google.android.apps.subscriptions.red com.google.android.apps.docs com.google.android.googlequicksearchbox com.google.android.videos com.google.android.apps.healthdata com.google.android.apps.safetyhub com.google.android.youtube com.google.android.apps.youtube.music com.google.android.apps.wellbeing"
 if "%app_choice%"=="0" goto main_menu
 goto google_menu
 
 :third_party_menu
 cls
 echo === Сторонні додатки ===
-call :check_status "com.amazon.mShop.android.shopping com.amazon.appmanager" amazon_status
-call :check_status "com.block.juggle" juggle_status
-call :check_status "com.booking" booking_status
-call :check_status "com.facebook.services com.facebook.system com.facebook.appmanager com.facebook.katana" fb_status
-call :check_status "com.netflix.mediaclient com.netflix.partner.activation" netflix_status
-call :check_status "com.microsoft.skydrive" skydrive_status
-call :check_status "com.opera.browser com.opera.preinstall" opera_status
-call :check_status "com.spotify.music" spotify_status
-call :check_status "com.einnovation.temu" temu_status
-call :check_status "cn.wps.moffice_eng" wps_status
-echo 1) Amazon (com.amazon.mShop.android.shopping com.amazon.appmanager) - Статус: %amazon_status%
-echo 2) Block Juggle (com.block.juggle) - Статус: %juggle_status%
-echo 3) Booking.com (com.booking) - Статус: %booking_status%
-echo 4) Facebook (com.facebook.services com.facebook.system com.facebook.appmanager com.facebook.katana) - Статус: %fb_status%
-echo 5) Netflix (com.netflix.mediaclient com.netflix.partner.activation) - Статус: %netflix_status%
-echo 6) OneDrive (com.microsoft.skydrive) - Статус: %skydrive_status%
-echo 7) Opera (com.opera.browser com.opera.preinstall) - Статус: %opera_status%
-echo 8) Spotify (com.spotify.music) - Статус: %spotify_status%
-echo 9) Temu (com.einnovation.temu) - Статус: %temu_status%
-echo 10) WPS Office (cn.wps.moffice_eng) - Статус: %wps_status%
+echo 1) Amazon (com.amazon.mShop.android.shopping com.amazon.appmanager)
+echo 2) Block Juggle (com.block.juggle)
+echo 3) Booking.com (com.booking)
+echo 4) Facebook (com.facebook.services com.facebook.system com.facebook.appmanager com.facebook.katana)
+echo 5) Netflix (com.netflix.mediaclient com.netflix.partner.activation)
+echo 6) OneDrive (com.microsoft.skydrive)
+echo 7) Opera (com.opera.browser com.opera.preinstall)
+echo 8) Spotify (com.spotify.music)
+echo 9) Temu (com.einnovation.temu)
+echo 10) WPS Office (cn.wps.moffice_eng)
+echo 11) Видалити вибірково
 echo 0) Повернутися до головного меню
 echo -------------------------
 set /p app_choice="Виберіть програму: "
@@ -296,6 +232,7 @@ if "%app_choice%"=="7" call :action_menu "Opera" "com.opera.browser com.opera.pr
 if "%app_choice%"=="8" call :action_menu "Spotify" "com.spotify.music" "Видалити" "third_party_menu"
 if "%app_choice%"=="9" call :action_menu "Temu" "com.einnovation.temu" "Видалити" "third_party_menu"
 if "%app_choice%"=="10" call :action_menu "WPS Office" "cn.wps.moffice_eng" "Видалити" "third_party_menu"
+if "%app_choice%"=="11" call :selective_uninstall "third_party_menu" "com.amazon.mShop.android.shopping com.amazon.appmanager com.block.juggle com.booking com.facebook.services com.facebook.system com.facebook.appmanager com.facebook.katana com.netflix.mediaclient com.netflix.partner.activation com.microsoft.skydrive com.opera.browser com.opera.preinstall com.spotify.music com.einnovation.temu cn.wps.moffice_eng"
 if "%app_choice%"=="0" goto main_menu
 goto third_party_menu
 
@@ -435,22 +372,51 @@ if defined not_installed_pkgs (
 
 echo Статус: !status_output!
 echo Рекомендація: %3
-echo 1) Відключити
-echo 2) Увімкнути
-echo 3) Видалити
-echo 4) Відновити
+echo 1) Видалити
+echo 2) Відключити
+echo 3) Відновити
+echo 4) Увімкнути
 echo 0) Повернутися
 echo -------------------------
 set /p action="Виберіть дію: "
 
-if "!action!"=="1" for %%p in (%2) do call :disable_package %%p
-if "!action!"=="2" for %%p in (%2) do call :enable_package %%p
-if "!action!"=="3" for %%p in (%2) do call :uninstall_package %%p
-if "!action!"=="4" for %%p in (%2) do call :install_package %%p
+if "!action!"=="1" for %%p in (%2) do call :uninstall_package %%p
+if "!action!"=="2" for %%p in (%2) do call :disable_package %%p
+if "!action!"=="3" for %%p in (%2) do call :install_package %%p
+if "!action!"=="4" for %%p in (%2) do call :enable_package %%p
 if "!action!"=="0" goto :%4
 
 pause
 goto :%4
+
+:selective_uninstall
+cls
+echo [GREEN]=== Вибіркове видалення ===[NC]
+echo Введіть номери програм через пробіл (наприклад, '1 5 23').
+echo Діапазон: 1–%~3
+echo -------------------------
+set /p selection="Виберіть програми: "
+set "packages=%2"
+set "index=0"
+
+for %%p in (%packages%) do (
+    set /a index+=1
+    set "pkg[!index!]=%%p"
+)
+
+for %%n in (%selection%) do (
+    set "valid=1"
+    if %%n lss 1 set "valid=0"
+    if %%n gtr %index% set "valid=0"
+    if !valid! equ 1 (
+        call :uninstall_package !pkg[%%n]!
+    ) else (
+        echo [RED]Невірний номер: %%n[NC]
+    )
+)
+
+pause
+goto :%1
 
 :exit
 adb kill-server >nul 2>&1

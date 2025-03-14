@@ -99,7 +99,7 @@ miui-clean/
 
 ### License
 
-This project is licensed under the [MIT License](https://github.com/quinsaiz/miui-clean?tab=MIT-1-ov-file).
+This project is licensed under the [MIT License](/miui-clean?tab=MIT-1-ov-file).
 
 ### Support
 
@@ -193,7 +193,7 @@ miui-clean/
 
 ### Ліцензія
 
-Цей проєкт ліцензовано за [MIT License](https://github.com/quinsaiz/miui-clean?tab=MIT-1-ov-file).
+Цей проєкт ліцензовано за [MIT License](/miui-clean?tab=MIT-1-ov-file).
 
 ### Підтримка
 

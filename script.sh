@@ -32,43 +32,6 @@ check_device() {
     fi
 }
 
-check_package_status() {
-    local packages=$1
-    local installed=0
-    local disabled=0
-    local uninstalled=0
-    local total=0
-    local system_exists=0
-
-    for pkg in $packages; do
-        total=$((total + 1))
-        if adb shell pm list packages -u | grep -q "$pkg"; then
-            system_exists=1
-            if adb shell pm list packages -d | grep -q "$pkg"; then
-                disabled=$((disabled + 1))
-            elif adb shell pm list packages | grep -q "$pkg"; then
-                installed=$((installed + 1))
-            else
-                uninstalled=$((uninstalled + 1))
-            fi
-        else
-            uninstalled=$((uninstalled + 1))
-        fi
-    done
-
-    if [ $total -eq $installed ]; then
-        echo -e "${GREEN}Встановлено${NC}"
-    elif [ $total -eq $disabled ]; then
-        echo -e "${YELLOW}Відключено${NC}"
-    elif [ $total -eq $uninstalled ] && [ $system_exists -eq 1 ]; then
-        echo -e "${RED}Видалено${NC}"
-    elif [ $total -eq $uninstalled ]; then
-        echo -e "${BLUE}Не встановлено${NC}"
-    else
-        echo -e "${CYAN}Встановлено частково${NC}"
-    fi
-}
-
 disable_package() {
     local package=$1
     if adb shell pm list packages -d | grep -q "$package"; then
@@ -151,17 +114,25 @@ main_menu() {
 miui_menu() {
     clear
     echo -e "${GREEN}=== Системні програми MIUI/HyperOS ===${NC}"
-    echo "1) GetApps (com.xiaomi.mipicks) - Статус: $(check_package_status com.xiaomi.mipicks)"
-    echo "2) Mi Browser (com.mi.globalbrowser) - Статус: $(check_package_status com.mi.globalbrowser)"
-    echo "3) Mi Home (com.xiaomi.smarthome) - Статус: $(check_package_status com.xiaomi.smarthome)"
-    echo "4) Mi Mover (com.miui.huanji) - Статус: $(check_package_status com.miui.huanji)"
-    echo "5) Mi Music (com.miui.player) - Статус: $(check_package_status com.miui.player)"
-    echo "6) Mi Video (com.miui.video com.miui.videoplayer) - Статус: $(check_package_status "com.miui.video com.miui.videoplayer")"
-    echo "7) POCO Community (com.mi.global.pocobbs) - Статус: $(check_package_status com.mi.global.pocobbs)"
-    echo "8) POCO Store (com.mi.global.pocostore) - Статус: $(check_package_status com.mi.global.pocostore)"
-    echo "9) Ігри Xiaomi (com.xiaomi.glgm) - Статус: $(check_package_status com.xiaomi.glgm)"
-    echo "10) Карусель шпалер (com.miui.android.fashiongallery) - Статус: $(check_package_status com.miui.android.fashiongallery)"
-    echo "11) Стрічка віджетів MinusScreen (com.mi.globalminusscreen com.mi.android.globalminusscreen) - Статус: $(check_package_status "com.mi.globalminusscreen com.mi.android.globalminusscreen")"
+    echo "1) GetApps (com.xiaomi.mipicks)"
+    echo "2) Mi Browser (com.mi.globalbrowser)"
+    echo "3) Mi Home (com.xiaomi.smarthome)"
+    echo "4) Mi Mover (com.miui.huanji)"
+    echo "5) Mi Music (com.miui.player)"
+    echo "6) Mi Video (com.miui.video com.miui.videoplayer)"
+    echo "7) POCO Community (com.mi.global.pocobbs)"
+    echo "8) POCO Store (com.mi.global.pocostore)"
+    echo "9) Ігри Xiaomi (com.xiaomi.glgm)"
+    echo "10) Карусель шпалер (com.miui.android.fashiongallery)"
+    echo "11) Стрічка віджетів MinusScreen (com.mi.globalminusscreen com.mi.android.globalminusscreen)"
+    echo "12) ShareMe (com.xiaomi.midrop)"
+    echo "13) Завантаження (com.android.providers.downloads.ui)"
+    echo "14) Компас (com.miui.compass)"
+    echo "15) Очищувач (com.miui.cleaner)"
+    echo "16) Сканер QR (com.xiaomi.scanner)"
+    echo "17) Теми (com.android.thememanager)"
+    echo "98) Видалити вибірково"
+    echo "99) Перевірити статус всіх програм"
     echo "0) Повернутися до головного меню"
     echo "-------------------------"
     read -p "Виберіть програму: " app_choice
@@ -178,6 +149,14 @@ miui_menu() {
         9) action_menu "Ігри Xiaomi" "com.xiaomi.glgm" "Видалити" "miui_menu" ;;
         10) action_menu "Карусель шпалер" "com.miui.android.fashiongallery" "Видалити" "miui_menu" ;;
         11) action_menu "Стрічка віджетів MinusScreen" "com.mi.globalminusscreen com.mi.android.globalminusscreen" "Видалити" "miui_menu" ;;
+        12) action_menu "ShareMe" "com.xiaomi.midrop" "Видалити" "miui_menu" ;;
+        13) action_menu "Завантаження" "com.android.providers.downloads.ui" "Видалити" "miui_menu" ;;
+        14) action_menu "Компас" "com.miui.compass" "Видалити" "miui_menu" ;;
+        15) action_menu "Очищувач" "com.miui.cleaner" "Видалити" "miui_menu" ;;
+        16) action_menu "Сканер QR" "com.xiaomi.scanner" "Видалити" "miui_menu" ;;
+        17) action_menu "Теми" "com.android.thememanager" "Видалити" "miui_menu" ;;
+        98) selective_uninstall "miui_menu" "com.xiaomi.mipicks" "com.mi.globalbrowser" "com.xiaomi.smarthome" "com.miui.huanji" "com.miui.player" "com.miui.video com.miui.videoplayer" "com.mi.global.pocobbs" "com.mi.global.pocostore" "com.xiaomi.glgm" "com.miui.android.fashiongallery" "com.mi.globalminusscreen com.mi.android.globalminusscreen" "com.xiaomi.midrop" "com.android.providers.downloads.ui" "com.miui.compass" "com.miui.cleaner" "com.xiaomi.scanner" "com.android.thememanager" ;;
+        99) check_all_status "miui_menu" "com.xiaomi.mipicks" "com.mi.globalbrowser" "com.xiaomi.smarthome" "com.miui.huanji" "com.miui.player" "com.miui.video com.miui.videoplayer" "com.mi.global.pocobbs" "com.mi.global.pocostore" "com.xiaomi.glgm" "com.miui.android.fashiongallery" "com.mi.globalminusscreen com.mi.android.globalminusscreen" "com.xiaomi.midrop" "com.android.providers.downloads.ui" "com.miui.compass" "com.miui.cleaner" "com.xiaomi.scanner" "com.android.thememanager" ;;
         0) main_menu ;;
         *) echo -e "${RED}Невірний вибір.${NC}"; sleep 2; miui_menu ;;
     esac
@@ -186,39 +165,41 @@ miui_menu() {
 utilities_menu() {
     clear
     echo -e "${GREEN}=== Службові утиліти (критичні) ===${NC}"
-    echo "1) Bluetooth MIDI (com.android.bluetoothmidiservice) - Статус: $(check_package_status com.android.bluetoothmidiservice)"
-    echo "2) Device Health Services (com.google.android.apps.turbo) - Статус: $(check_package_status com.google.android.apps.turbo)"
-    echo "3) MMS служба (com.android.mms.service) - Статус: $(check_package_status com.android.mms.service)"
-    echo "4) Qualcomm Miracast (com.qualcomm.atfwd) - Статус: $(check_package_status com.qualcomm.atfwd)"
-    echo "5) Qualcomm RCS повідомлення (com.qualcomm.qti.uceShimService) - Статус: $(check_package_status com.qualcomm.qti.uceShimService)"
-    echo "6) Quick Apps (com.miui.hybrid com.miui.hybrid.accessory) - Статус: $(check_package_status "com.miui.hybrid com.miui.hybrid.accessory")"
-    echo "7) TalkBack (com.google.android.marvin.talkback) - Статус: $(check_package_status com.google.android.marvin.talkback)"
-    echo "8) Китайські віртуальні картки (com.miui.vsimcore) - Статус: $(check_package_status com.miui.vsimcore)"
-    echo "9) Китайський варіант Wi-Fi (com.wapi.wapicertmanage) - Статус: $(check_package_status com.wapi.wapicertmanage)"
-    echo "10) Аналітика MIUI (com.miui.analytics) - Статус: $(check_package_status com.miui.analytics)"
-    echo "11) Голосова активація (com.quicinc.voice.activation) - Статус: $(check_package_status com.quicinc.voice.activation)"
-    echo "12) Китайський оприділяч номера (com.miui.yellowpage) - Статус: $(check_package_status com.miui.yellowpage)"
-    echo "13) Звіти про помилки та зворотній зв'язок (com.miui.bugreport com.miui.miservice) - Статус: $(check_package_status "com.miui.bugreport com.miui.miservice")"
-    echo "14) Ініціалізація Google (com.google.android.onetimeinitializer com.google.android.partnersetup) - Статус: $(check_package_status "com.google.android.onetimeinitializer com.google.android.partnersetup")"
-    echo "15) Китайський Mi Pay (com.xiaomi.payment com.mipay.wallet.in) - Статус: $(check_package_status "com.xiaomi.payment com.mipay.wallet.in")"
-    echo "16) Китайський акційний сервіс (com.xiaomi.mirecycle) - Статус: $(check_package_status com.xiaomi.mirecycle)"
-    echo "17) Китайський сервіс підтвердження платежів (com.tencent.soter.soterserver) - Статус: $(check_package_status com.tencent.soter.soterserver)"
-    echo "18) Логи батареї Catchlog (com.bsp.catchlog) - Статус: $(check_package_status com.bsp.catchlog)"
-    echo "19) Меню SIM-карти (com.android.stk) - Статус: $(check_package_status com.android.stk)"
-    echo "20) Навігаційні жести (com.android.internal.systemui.navbar.gestural ...) - Статус: $(check_package_status "com.android.internal.systemui.navbar.gestural com.android.internal.systemui.navbar.gestural_extra_wide_back com.android.internal.systemui.navbar.gestural_narrow_back com.android.internal.systemui.navbar.gestural_wide_back com.android.internal.systemui.navbar.threebutton")"
-    echo "21) Оптимізація MIUI Daemon (com.miui.daemon) - Статус: $(check_package_status com.miui.daemon)"
-    echo "22) Оптимізація процесів (com.xiaomi.joyose) - Статус: $(check_package_status com.xiaomi.joyose)"
-    echo "23) Очікування OK Google (com.android.hotwordenrollment.okgoogle com.android.hotwordenrollment.xgoogle) - Статус: $(check_package_status "com.android.hotwordenrollment.okgoogle com.android.hotwordenrollment.xgoogle")"
-    echo "24) Реклама MIUI (com.miui.msa.global) - Статус: $(check_package_status com.miui.msa.global)"
-    echo "25) Рекламні закладки (com.android.bookmarkprovider com.android.providers.partnerbookmarks) - Статус: $(check_package_status "com.android.bookmarkprovider com.android.providers.partnerbookmarks")"
-    echo "26) Рекомендації друку Google (com.google.android.printservice.recommendation) - Статус: $(check_package_status com.google.android.printservice.recommendation)"
-    echo "27) Резервна копія у хмарі (com.miui.cloudbackup com.miui.cloudservice com.miui.cloudservice.sysbase) - Статус: $(check_package_status "com.miui.cloudbackup com.miui.cloudservice com.miui.cloudservice.sysbase")"
-    echo "28) Резервне копіювання шпалер (com.android.wallpaperbackup) - Статус: $(check_package_status com.android.wallpaperbackup)"
-    echo "29) Сенсорний помічник (com.miui.touchassistant) - Статус: $(check_package_status com.miui.touchassistant)"
-    echo "30) Служба друку (com.android.bips com.android.printspooler) - Статус: $(check_package_status "com.android.bips com.android.printspooler")"
-    echo "31) Стрічка віджетів App vault (com.miui.personalassistant) - Статус: $(check_package_status com.miui.personalassistant)"
-    echo "32) Трасування системи (com.android.traceur) - Статус: $(check_package_status com.android.traceur)"
-    echo "33) Шрифт Noto Serif (com.android.theme.font.notoserifsource) - Статус: $(check_package_status com.android.theme.font.notoserifsource)"
+    echo "1) Bluetooth MIDI (com.android.bluetoothmidiservice)"
+    echo "2) Device Health Services (com.google.android.apps.turbo)"
+    echo "3) MMS служба (com.android.mms.service)"
+    echo "4) Qualcomm Miracast (com.qualcomm.atfwd)"
+    echo "5) Qualcomm RCS повідомлення (com.qualcomm.qti.uceShimService)"
+    echo "6) Quick Apps (com.miui.hybrid com.miui.hybrid.accessory)"
+    echo "7) TalkBack (com.google.android.marvin.talkback)"
+    echo "8) Китайські віртуальні картки (com.miui.vsimcore)"
+    echo "9) Китайський варіант Wi-Fi (com.wapi.wapicertmanage)"
+    echo "10) Аналітика MIUI (com.miui.analytics)"
+    echo "11) Голосова активація (com.quicinc.voice.activation)"
+    echo "12) Китайський оприділяч номера (com.miui.yellowpage)"
+    echo "13) Звіти про помилки та зворотній зв'язок (com.miui.bugreport com.miui.miservice)"
+    echo "14) Ініціалізація Google (com.google.android.onetimeinitializer com.google.android.partnersetup)"
+    echo "15) Китайський Mi Pay (com.xiaomi.payment com.mipay.wallet.in)"
+    echo "16) Китайський акційний сервіс (com.xiaomi.mirecycle)"
+    echo "17) Китайський сервіс підтвердження платежів (com.tencent.soter.soterserver)"
+    echo "18) Логи батареї Catchlog (com.bsp.catchlog)"
+    echo "19) Меню SIM-карти (com.android.stk)"
+    echo "20) Навігаційні жести (com.android.internal.systemui.navbar.gestural com.android.internal.systemui.navbar.gestural_extra_wide_back com.android.internal.systemui.navbar.gestural_narrow_back com.android.internal.systemui.navbar.gestural_wide_back com.android.internal.systemui.navbar.threebutton)"
+    echo "21) Оптимізація MIUI Daemon (com.miui.daemon)"
+    echo "22) Оптимізація процесів (com.xiaomi.joyose)"
+    echo "23) Очікування OK Google (com.android.hotwordenrollment.okgoogle com.android.hotwordenrollment.xgoogle)"
+    echo "24) Реклама MIUI (com.miui.msa.global)"
+    echo "25) Рекламні закладки (com.android.bookmarkprovider com.android.providers.partnerbookmarks)"
+    echo "26) Рекомендації друку Google (com.google.android.printservice.recommendation)"
+    echo "27) Резервна копія у хмарі (com.miui.cloudbackup com.miui.cloudservice com.miui.cloudservice.sysbase)"
+    echo "28) Резервне копіювання шпалер (com.android.wallpaperbackup)"
+    echo "29) Сенсорний помічник (com.miui.touchassistant)"
+    echo "30) Служба друку (com.android.bips com.android.printspooler)"
+    echo "31) Стрічка віджетів App vault (com.miui.personalassistant)"
+    echo "32) Трасування системи (com.android.traceur)"
+    echo "33) Шрифт Noto Serif (com.android.theme.font.notoserifsource)"
+    echo "98) Видалити вибірково"
+    echo "99) Перевірити статус всіх програм"
     echo "0) Повернутися до головного меню"
     echo "-------------------------"
     read -p "Виберіть програму: " app_choice
@@ -257,6 +238,8 @@ utilities_menu() {
         31) action_menu "Стрічка віджетів App vault" "com.miui.personalassistant" "Відключити" "utilities_menu" ;;
         32) action_menu "Трасування системи" "com.android.traceur" "Відключити" "utilities_menu" ;;
         33) action_menu "Шрифт Noto Serif" "com.android.theme.font.notoserifsource" "Відключити" "utilities_menu" ;;
+        98) selective_uninstall "utilities_menu" "com.android.bluetoothmidiservice" "com.google.android.apps.turbo" "com.android.mms.service" "com.qualcomm.atfwd" "com.qualcomm.qti.uceShimService" "com.miui.hybrid com.miui.hybrid.accessory" "com.google.android.marvin.talkback" "com.miui.vsimcore" "com.wapi.wapicertmanage" "com.miui.analytics" "com.quicinc.voice.activation" "com.miui.yellowpage" "com.miui.bugreport com.miui.miservice" "com.google.android.onetimeinitializer com.google.android.partnersetup" "com.xiaomi.payment com.mipay.wallet.in" "com.xiaomi.mirecycle" "com.tencent.soter.soterserver" "com.bsp.catchlog" "com.android.stk" "com.android.internal.systemui.navbar.gestural com.android.internal.systemui.navbar.gestural_extra_wide_back com.android.internal.systemui.navbar.gestural_narrow_back com.android.internal.systemui.navbar.gestural_wide_back com.android.internal.systemui.navbar.threebutton" "com.miui.daemon" "com.xiaomi.joyose" "com.android.hotwordenrollment.okgoogle com.android.hotwordenrollment.xgoogle" "com.miui.msa.global" "com.android.bookmarkprovider com.android.providers.partnerbookmarks" "com.google.android.printservice.recommendation" "com.miui.cloudbackup com.miui.cloudservice com.miui.cloudservice.sysbase" "com.android.wallpaperbackup" "com.miui.touchassistant" "com.android.bips com.android.printspooler" "com.miui.personalassistant" "com.android.traceur" "com.android.theme.font.notoserifsource" ;;
+        99) check_all_status "utilities_menu" "com.android.bluetoothmidiservice" "com.google.android.apps.turbo" "com.android.mms.service" "com.qualcomm.atfwd" "com.qualcomm.qti.uceShimService" "com.miui.hybrid com.miui.hybrid.accessory" "com.google.android.marvin.talkback" "com.miui.vsimcore" "com.wapi.wapicertmanage" "com.miui.analytics" "com.quicinc.voice.activation" "com.miui.yellowpage" "com.miui.bugreport com.miui.miservice" "com.google.android.onetimeinitializer com.google.android.partnersetup" "com.xiaomi.payment com.mipay.wallet.in" "com.xiaomi.mirecycle" "com.tencent.soter.soterserver" "com.bsp.catchlog" "com.android.stk" "com.android.internal.systemui.navbar.gestural com.android.internal.systemui.navbar.gestural_extra_wide_back com.android.internal.systemui.navbar.gestural_narrow_back com.android.internal.systemui.navbar.gestural_wide_back com.android.internal.systemui.navbar.threebutton" "com.miui.daemon" "com.xiaomi.joyose" "com.android.hotwordenrollment.okgoogle com.android.hotwordenrollment.xgoogle" "com.miui.msa.global" "com.android.bookmarkprovider com.android.providers.partnerbookmarks" "com.google.android.printservice.recommendation" "com.miui.cloudbackup com.miui.cloudservice com.miui.cloudservice.sysbase" "com.android.wallpaperbackup" "com.miui.touchassistant" "com.android.bips com.android.printspooler" "com.miui.personalassistant" "com.android.traceur", "com.android.theme.font.notoserifsource" ;;
         0) main_menu ;;
         *) echo -e "${RED}Невірний вибір.${NC}"; sleep 2; utilities_menu ;;
     esac
@@ -265,23 +248,25 @@ utilities_menu() {
 google_menu() {
     clear
     echo -e "${GREEN}=== Програми від Google ===${NC}"
-    echo "1) Android Auto (com.google.android.projection.gearhead) - Статус: $(check_package_status com.google.android.projection.gearhead)"
-    echo "2) Chrome (com.android.chrome) - Статус: $(check_package_status com.android.chrome)"
-    echo "3) Gmail (com.google.android.gm) - Статус: $(check_package_status com.google.android.gm)"
-    echo "4) Google Assistant (com.google.android.apps.googleassistant) - Статус: $(check_package_status com.google.android.apps.googleassistant)"
-    echo "5) Google Duo (com.google.android.apps.tachyon) - Статус: $(check_package_status com.google.android.apps.tachyon)"
-    echo "6) Google Files (com.google.android.apps.nbu.files) - Статус: $(check_package_status com.google.android.apps.nbu.files)"
-    echo "7) Google Maps (com.google.android.apps.maps) - Статус: $(check_package_status com.google.android.apps.maps)"
-    echo "8) Google Music (com.google.android.music) - Статус: $(check_package_status com.google.android.music)"
-    echo "9) Google One (com.google.android.apps.subscriptions.red) - Статус: $(check_package_status com.google.android.apps.subscriptions.red)"
-    echo "10) Google Drive (com.google.android.apps.docs) - Статус: $(check_package_status com.google.android.apps.docs)"
-    echo "11) Google Search (com.google.android.googlequicksearchbox) - Статус: $(check_package_status com.google.android.googlequicksearchbox)"
-    echo "12) Google Videos (com.google.android.videos) - Статус: $(check_package_status com.google.android.videos)"
-    echo "13) Health Connect (com.google.android.apps.healthdata) - Статус: $(check_package_status com.google.android.apps.healthdata)"
-    echo "14) Safety Hub (com.google.android.apps.safetyhub) - Статус: $(check_package_status com.google.android.apps.safetyhub)"
-    echo "15) YouTube (com.google.android.apps.youtube) - Статус: $(check_package_status com.google.android.apps.youtube)"
-    echo "16) YouTube Music (com.google.android.apps.youtube.music) - Статус: $(check_package_status com.google.android.apps.youtube.music)"
-    echo "17) Цифрове благополуччя (com.google.android.apps.wellbeing) - Статус: $(check_package_status com.google.android.apps.wellbeing)"
+    echo "1) Android Auto (com.google.android.projection.gearhead)"
+    echo "2) Chrome (com.android.chrome)"
+    echo "3) Gmail (com.google.android.gm)"
+    echo "4) Google Assistant (com.google.android.apps.googleassistant)"
+    echo "5) Google Duo (com.google.android.apps.tachyon)"
+    echo "6) Google Files (com.google.android.apps.nbu.files)"
+    echo "7) Google Maps (com.google.android.apps.maps)"
+    echo "8) Google Music (com.google.android.music)"
+    echo "9) Google One (com.google.android.apps.subscriptions.red)"
+    echo "10) Google Drive (com.google.android.apps.docs)"
+    echo "11) Google Search (com.google.android.googlequicksearchbox)"
+    echo "12) Google Videos (com.google.android.videos)"
+    echo "13) Health Connect (com.google.android.apps.healthdata)"
+    echo "14) Safety Hub (com.google.android.apps.safetyhub)"
+    echo "15) YouTube (com.google.android.youtube)"
+    echo "16) YouTube Music (com.google.android.apps.youtube.music)"
+    echo "17) Цифрове благополуччя (com.google.android.apps.wellbeing)"
+    echo "98) Видалити вибірково"
+    echo "99) Перевірити статус всіх програм"
     echo "0) Повернутися до головного меню"
     echo "-------------------------"
     read -p "Виберіть програму: " app_choice
@@ -301,9 +286,11 @@ google_menu() {
         12) action_menu "Google Videos" "com.google.android.videos" "Видалити" "google_menu" ;;
         13) action_menu "Health Connect" "com.google.android.apps.healthdata" "Видалити" "google_menu" ;;
         14) action_menu "Safety Hub" "com.google.android.apps.safetyhub" "Видалити" "google_menu" ;;
-        15) action_menu "YouTube" "com.google.android.apps.youtube" "Видалити" "google_menu" ;;
+        15) action_menu "YouTube" "com.google.android.youtube" "Видалити" "google_menu" ;;
         16) action_menu "YouTube Music" "com.google.android.apps.youtube.music" "Видалити" "google_menu" ;;
         17) action_menu "Цифрове благополуччя" "com.google.android.apps.wellbeing" "Видалити" "google_menu" ;;
+        98) selective_uninstall "google_menu" "com.google.android.projection.gearhead" "com.android.chrome" "com.google.android.gm" "com.google.android.apps.googleassistant" "com.google.android.apps.tachyon" "com.google.android.apps.nbu.files" "com.google.android.apps.maps" "com.google.android.music" "com.google.android.apps.subscriptions.red" "com.google.android.apps.docs" "com.google.android.googlequicksearchbox" "com.google.android.videos" "com.google.android.apps.healthdata" "com.google.android.apps.safetyhub" "com.google.android.youtube" "com.google.android.apps.youtube.music" "com.google.android.apps.wellbeing" ;;
+        99) check_all_status "google_menu" "com.google.android.projection.gearhead" "com.android.chrome" "com.google.android.gm" "com.google.android.apps.googleassistant" "com.google.android.apps.tachyon" "com.google.android.apps.nbu.files" "com.google.android.apps.maps" "com.google.android.music" "com.google.android.apps.subscriptions.red" "com.google.android.apps.docs" "com.google.android.googlequicksearchbox" "com.google.android.videos" "com.google.android.apps.healthdata" "com.google.android.apps.safetyhub" "com.google.android.youtube" "com.google.android.apps.youtube.music" "com.google.android.apps.wellbeing" ;;
         0) main_menu ;;
         *) echo -e "${RED}Невірний вибір.${NC}"; sleep 2; google_menu ;;
     esac
@@ -312,16 +299,18 @@ google_menu() {
 third_party_menu() {
     clear
     echo -e "${GREEN}=== Сторонні додатки ===${NC}"
-    echo "1) Amazon (com.amazon.mShop.android.shopping com.amazon.appmanager) - Статус: $(check_package_status "com.amazon.mShop.android.shopping com.amazon.appmanager")"
-    echo "2) Block Juggle (com.block.juggle) - Статус: $(check_package_status com.block.juggle)"
-    echo "3) Booking (com.booking) - Статус: $(check_package_status com.booking)"
-    echo "4) Facebook (com.facebook.services com.facebook.system com.facebook.appmanager com.facebook.katana) - Статус: $(check_package_status "com.facebook.services com.facebook.system com.facebook.appmanager com.facebook.katana")"
-    echo "5) Netflix (com.netflix.mediaclient com.netflix.partner.activation) - Статус: $(check_package_status "com.netflix.mediaclient com.netflix.partner.activation")"
-    echo "6) OneDrive (com.microsoft.skydrive) - Статус: $(check_package_status com.microsoft.skydrive)"
-    echo "7) Opera (com.opera.browser com.opera.preinstall) - Статус: $(check_package_status "com.opera.browser com.opera.preinstall")"
-    echo "8) Spotify (com.spotify.music) - Статус: $(check_package_status com.spotify.music)"
-    echo "9) Temu (com.einnovation.temu) - Статус: $(check_package_status com.einnovation.temu)"
-    echo "10) WPS Office (cn.wps.moffice_eng) - Статус: $(check_package_status cn.wps.moffice_eng)"
+    echo "1) Amazon (com.amazon.mShop.android.shopping com.amazon.appmanager)"
+    echo "2) Block Juggle (com.block.juggle)"
+    echo "3) Booking (com.booking)"
+    echo "4) Facebook (com.facebook.services com.facebook.system com.facebook.appmanager com.facebook.katana)"
+    echo "5) Netflix (com.netflix.mediaclient com.netflix.partner.activation)"
+    echo "6) OneDrive (com.microsoft.skydrive)"
+    echo "7) Opera (com.opera.browser com.opera.preinstall)"
+    echo "8) Spotify (com.spotify.music)"
+    echo "9) Temu (com.einnovation.temu)"
+    echo "10) WPS Office (cn.wps.moffice_eng)"
+    echo "98) Видалити вибірково"
+    echo "99) Перевірити статус всіх програм"
     echo "0) Повернутися до головного меню"
     echo "-------------------------"
     read -p "Виберіть програму: " app_choice
@@ -337,6 +326,8 @@ third_party_menu() {
         8) action_menu "Spotify" "com.spotify.music" "Видалити" "third_party_menu" ;;
         9) action_menu "Temu" "com.einnovation.temu" "Видалити" "third_party_menu" ;;
         10) action_menu "WPS Office" "cn.wps.moffice_eng" "Видалити" "third_party_menu" ;;
+        98) selective_uninstall "third_party_menu" "com.amazon.mShop.android.shopping com.amazon.appmanager" "com.block.juggle" "com.booking" "com.facebook.services com.facebook.system com.facebook.appmanager com.facebook.katana" "com.netflix.mediaclient com.netflix.partner.activation" "com.microsoft.skydrive" "com.opera.browser com.opera.preinstall" "com.spotify.music" "com.einnovation.temu" "cn.wps.moffice_eng" ;;
+        99) check_all_status "third_party_menu" "com.amazon.mShop.android.shopping com.amazon.appmanager" "com.block.juggle" "com.booking" "com.facebook.services com.facebook.system com.facebook.appmanager com.facebook.katana" "com.netflix.mediaclient com.netflix.partner.activation" "com.microsoft.skydrive" "com.opera.browser com.opera.preinstall" "com.spotify.music" "com.einnovation.temu" "cn.wps.moffice_eng" ;;
         0) main_menu ;;
         *) echo -e "${RED}Невірний вибір.${NC}"; sleep 2; third_party_menu ;;
     esac
@@ -388,23 +379,198 @@ action_menu() {
 
     echo -e "Статус: $status_output"
     echo "Рекомендація: $recommendation"
-    echo "1) Відключити"
-    echo "2) Увімкнути"
-    echo "3) Видалити"
-    echo "4) Відновити"
+    echo "1) Видалити"
+    echo "2) Відключити"
+    echo "3) Відновити"
+    echo "4) Увімкнути"
     echo "0) Повернутися"
     echo "-------------------------"
     read -p "Виберіть дію: " action
 
     case $action in
-        1) for pkg in $packages; do disable_package "$pkg"; done ;;
-        2) for pkg in $packages; do enable_package "$pkg"; done ;;
-        3) for pkg in $packages; do uninstall_package "$pkg"; done ;;
-        4) for pkg in $packages; do install_package "$pkg"; done ;;
+        1) for pkg in $packages; do uninstall_package "$pkg"; done ;;
+        2) for pkg in $packages; do disable_package "$pkg"; done ;;
+        3) for pkg in $packages; do install_package "$pkg"; done ;;
+        4) for pkg in $packages; do enable_package "$pkg"; done ;;
         0) $return_menu ;;
         *) echo -e "${RED}Невірна дія${NC}" ;;
     esac
 
+    read -p "Натисніть Enter для продовження..." -r
+    $return_menu
+}
+
+selective_uninstall() {
+    local return_menu=$1
+    shift
+    local pkg_groups=("$@")
+    local max_index=$((${#pkg_groups[@]} - 1))
+
+    clear
+    echo -e "${GREEN}=== Вибіркове видалення ===${NC}"
+    echo "Введіть номери програм через пробіл (наприклад, '1 5 6')."
+    echo "Діапазон: 1–$((max_index + 1))"
+    echo "-------------------------"
+    read -p "Виберіть програми: " selection
+
+    for num in $selection; do
+        if [[ "$num" =~ ^[0-9]+$ ]] && [ "$num" -ge 1 ] && [ "$num" -le "$((max_index + 1))" ]; then
+            local pkg_group="${pkg_groups[$((num - 1))]}"
+            for pkg in $pkg_group; do
+                uninstall_package "$pkg"
+            done
+        else
+            echo -e "${RED}Невірний номер: $num${NC}"
+        fi
+    done
+
+    read -p "Натисніть Enter для продовження..." -r
+    $return_menu
+}
+
+check_package_status() {
+    local packages=$1
+    local installed=0
+    local disabled=0
+    local uninstalled=0
+    local total=0
+    local system_exists=0
+
+    for pkg in $packages; do
+        total=$((total + 1))
+        if adb shell pm list packages -u | grep -q "$pkg"; then
+            system_exists=1
+            if adb shell pm list packages -d | grep -q "$pkg"; then
+                disabled=$((disabled + 1))
+            elif adb shell pm list packages | grep -q "$pkg"; then
+                installed=$((installed + 1))
+            else
+                uninstalled=$((uninstalled + 1))
+            fi
+        else
+            uninstalled=$((uninstalled + 1))
+        fi
+    done
+
+    if [ $total -eq $installed ]; then
+        echo -e "${GREEN}Встановлено${NC}"
+    elif [ $total -eq $disabled ]; then
+        echo -e "${YELLOW}Відключено${NC}"
+    elif [ $total -eq $uninstalled ] && [ $system_exists -eq 1 ]; then
+        echo -e "${RED}Видалено${NC}"
+    elif [ $total -eq $uninstalled ]; then
+        echo -e "${BLUE}Не встановлено${NC}"
+    else
+        echo -e "${CYAN}Встановлено частково${NC}"
+    fi
+}
+
+check_all_status() {
+    local return_menu=$1
+    shift
+    local pkg_groups=("$@")
+
+    clear
+    echo -e "${GREEN}=== Перевірка статусу всіх програм ===${NC}"
+    local index=0
+    for pkg_group in "${pkg_groups[@]}"; do
+        index=$((index + 1))
+        local name=""
+        case $return_menu in
+            "miui_menu")
+                case $index in
+                    1) name="GetApps" ;;
+                    2) name="Mi Browser" ;;
+                    3) name="Mi Home" ;;
+                    4) name="Mi Mover" ;;
+                    5) name="Mi Music" ;;
+                    6) name="Mi Video" ;;
+                    7) name="POCO Community" ;;
+                    8) name="POCO Store" ;;
+                    9) name="Ігри Xiaomi" ;;
+                    10) name="Карусель шпалер" ;;
+                    11) name="Стрічка віджетів MinusScreen" ;;
+                    12) name="ShareMe" ;;
+                    13) name="Завантаження" ;;
+                    14) name="Теми" ;;
+                    15) name="Компас" ;;
+                    16) name="Сканер QR" ;;
+                    17) name="Очищувач" ;;
+                esac ;;
+            "utilities_menu")
+                case $index in
+                    1) name="Bluetooth MIDI" ;;
+                    2) name="Device Health Services" ;;
+                    3) name="MMS служба" ;;
+                    4) name="Qualcomm Miracast" ;;
+                    5) name="Qualcomm RCS повідомлення" ;;
+                    6) name="Quick Apps" ;;
+                    7) name="TalkBack" ;;
+                    8) name="Китайські віртуальні картки" ;;
+                    9) name="Китайський варіант Wi-Fi" ;;
+                    10) name="Аналітика MIUI" ;;
+                    11) name="Голосова активація" ;;
+                    12) name="Китайський оприділяч номера" ;;
+                    13) name="Звіти про помилки та зворотній зв'язок" ;;
+                    14) name="Ініціалізація Google" ;;
+                    15) name="Китайський Mi Pay" ;;
+                    16) name="Китайський акційний сервіс" ;;
+                    17) name="Китайський сервіс підтвердження платежів" ;;
+                    18) name="Логи батареї Catchlog" ;;
+                    19) name="Меню SIM-карти" ;;
+                    20) name="Навігаційні жести" ;;
+                    21) name="Оптимізація MIUI Daemon" ;;
+                    22) name="Оптимізація процесів" ;;
+                    23) name="Очікування OK Google" ;;
+                    24) name="Реклама MIUI" ;;
+                    25) name="Рекламні закладки" ;;
+                    26) name="Рекомендації друку Google" ;;
+                    27) name="Резервна копія у хмарі" ;;
+                    28) name="Резервне копіювання шпалер" ;;
+                    29) name="Сенсорний помічник" ;;
+                    30) name="Служба друку" ;;
+                    31) name="Стрічка віджетів App vault" ;;
+                    32) name="Трасування системи" ;;
+                    33) name="Шрифт Noto Serif" ;;
+                esac ;;
+            "google_menu")
+                case $index in
+                    1) name="Android Auto" ;;
+                    2) name="Chrome" ;;
+                    3) name="Gmail" ;;
+                    4) name="Google Assistant" ;;
+                    5) name="Google Duo" ;;
+                    6) name="Google Files" ;;
+                    7) name="Google Maps" ;;
+                    8) name="Google Music" ;;
+                    9) name="Google One" ;;
+                    10) name="Google Drive" ;;
+                    11) name="Google Search" ;;
+                    12) name="Google Videos" ;;
+                    13) name="Health Connect" ;;
+                    14) name="Safety Hub" ;;
+                    15) name="YouTube" ;;
+                    16) name="YouTube Music" ;;
+                    17) name="Цифрове благополуччя" ;;
+                esac ;;
+            "third_party_menu")
+                case $index in
+                    1) name="Amazon" ;;
+                    2) name="Block Juggle" ;;
+                    3) name="Booking" ;;
+                    4) name="Facebook" ;;
+                    5) name="Netflix" ;;
+                    6) name="OneDrive" ;;
+                    7) name="Opera" ;;
+                    8) name="Spotify" ;;
+                    9) name="Temu" ;;
+                    10) name="WPS Office" ;;
+                esac ;;
+        esac
+        echo -e "$index) $name | Статус: $(check_package_status "$pkg_group")"
+        #echo -e "$index) $name ($pkg_group) - Статус: $(check_package_status "$pkg_group")"
+    done
+    echo "-------------------------"
     read -p "Натисніть Enter для продовження..." -r
     $return_menu
 }
