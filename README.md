@@ -8,15 +8,11 @@
     <img src="https://img.shields.io/badge/Version-1.0-orange?style=for-the-badge" alt="Version"/>
 </p>
 
----
-
-<h3 align="center">Choose Language / Оберіть мову</h3>
+<h3 align="center">Choose Language/Оберіть мову</h3>
 
 <p align="center">
     <a href="#english">English</a> | <a href="#українська">Українська</a>
 </p>
-
----
 
 ## English  
 
@@ -99,13 +95,13 @@ miui-clean/
 
 ### License
 
-This project is licensed under the [MIT License](/miui-clean?tab=MIT-1-ov-file).
+This project is licensed under the [MIT License](/LICENSE).
 
 ### Support
 
 If you like this project, please give it a star on GitHub!
 
-[GitHub stars](https://img.shields.io/github/stars/quinsaiz/miui-clean?style=social)
+<img src="https://img.shields.io/github/stars/quinsaiz/miui-clean?style=social" alt="GitHub star"/>
 
 ## Українська
 
@@ -159,7 +155,7 @@ If you like this project, please give it a star on GitHub!
 Перейдіть до папки зі скриптом у командному рядку.
 
     ```cmd
-    cd шлях\до\miui-clean  
+    cd шлях/до/miui-clean  
     ```
 3. **Запустіть скрипт:**
 
@@ -193,10 +189,10 @@ miui-clean/
 
 ### Ліцензія
 
-Цей проєкт ліцензовано за [MIT License](/miui-clean?tab=MIT-1-ov-file).
+Цей проєкт ліцензовано за [MIT License](/LICENSE).
 
 ### Підтримка
 
 Якщо Вам подобається цей проєкт, можете поставити зірку!
 
-[GitHub зірки](https://img.shields.io/github/stars/quinsaiz/miui-clean?style=social)
+<img src="https://img.shields.io/github/stars/quinsaiz/miui-clean?style=social" alt="GitHub star"/>
