@@ -61,7 +61,7 @@ Or run:
 
 2.  **Open CMD: Navigate to the script folder in Command Prompt**
     ```cmd
-    cd path\to\miui-clean
+    cd path/to/miui-clean
     ```  
 3.  **Run the script:**
     ```cmd
