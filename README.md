@@ -1,7 +1,5 @@
 <h1 align="center">MIUI/HyperOS App Removal Tool</h1>
 
-<h2 align="center">Інструмент для видалення програм MIUI/HyperOS</h2>
-
 <p align="center">
     <img src="https://img.shields.io/badge/MIUI-HyperOS-blue?style=for-the-badge&logo=android" alt="MIUI/HyperOS"/>
     <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License"/>
