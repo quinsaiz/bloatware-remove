@@ -1,9 +1,9 @@
-<h1 align="center">MIUI/HyperOS App Removal Tool</h1>
+<h1 align="center">Bloatware App Removal Tools</h1>
 
 <p align="center">
     <img src="https://img.shields.io/badge/MIUI-HyperOS-blue?style=for-the-badge&logo=android" alt="MIUI/HyperOS"/>
     <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License"/>
-    <img src="https://img.shields.io/badge/Version-1.0-orange?style=for-the-badge" alt="Version"/>
+    <img src="https://img.shields.io/badge/Version-1.01-orange?style=for-the-badge" alt="Version"/>
 </p>
 
 <h3 align="center">Choose Language/Оберіть мову</h3>
@@ -37,8 +37,8 @@ This tool allows you to quickly and conveniently remove or disable unnecessary s
 
 2. **Download the script**:
     ```bash  
-    git clone https://github.com/quinsaiz/miui-clean.git
-    cd miui-clean
+    git clone https://github.com/quinsaiz/bloatware-remove.git
+    cd bloatware-remove
     ```
 3. **Make it executable**:
     ```bash
@@ -57,13 +57,12 @@ This tool allows you to quickly and conveniently remove or disable unnecessary s
 Download the ZIP from GitHub and extract it.
 Or run:
     ```cmd
-    git clone https://github.com/quinsaiz/miui-clean.git
-    cd miui-clean 
+    git clone https://github.com/quinsaiz/bloatware-remove.git
+    cd bloatware-remove 
     ```
-
 3.  **Open CMD: Navigate to the script folder in Command Prompt**
     ```cmd
-    cd path/to/miui-clean
+    cd path/to/bloatware-remove
     ```
 4.  **Run the script:**
     ```cmd
@@ -81,7 +80,7 @@ Or run:
 
 ### Project Structure
 ```text
-miui-clean/
+bloatware-remove/
 │  
 ├── script.sh   # Bash script for Linux
 ├── script.bat  # Batch script for Windows
@@ -101,7 +100,7 @@ This project is licensed under the [MIT License](/LICENSE).
 
 If you like this project, please give it a star on GitHub!
 
-<img src="https://img.shields.io/github/stars/quinsaiz/miui-clean?style=social" alt="GitHub star"/>
+<img src="https://img.shields.io/github/stars/quinsaiz/bloatware-remove?style=social" alt="GitHub star"/>
 
 ## Українська
 
@@ -129,8 +128,8 @@ If you like this project, please give it a star on GitHub!
 
 2. **Завантажте скрипт:**
     ```bash
-    git clone https://github.com/quinsaiz/miui-clean.git
-    cd miui-clean
+    git clone https://github.com/quinsaiz/bloatware-remove.git
+    cd bloatware-remove
     ```
 3. **Дайте права на виконання:**
     ```bash
@@ -140,7 +139,6 @@ If you like this project, please give it a star on GitHub!
     ```bash
     ./script.sh
     ```
-
 #### Інструкція для Windows
 
 1. **Встановіть ADB або перемістіть файли з папки platform-tools до папки script.**.
@@ -149,14 +147,14 @@ If you like this project, please give it a star on GitHub!
 Завантажте ZIP-архів з GitHub та розпакуйте його.
 Або виконайте:
     ```cmd
-    git clone https://github.com/quinsaiz/miui-clean.git
-    cd miui-clean
+    git clone https://github.com/quinsaiz/bloatware-remove.git
+    cd bloatware-remove
     ```
 2. **Відкрийте CMD:** 
 Перейдіть до папки зі скриптом у командному рядку.
 
     ```cmd
-    cd шлях/до/miui-clean
+    cd шлях/до/bloatware-remove
     ```
 3. **Запустіть скрипт:**
 
@@ -176,7 +174,7 @@ If you like this project, please give it a star on GitHub!
 
 ### Структура проєкту
 ```text
-miui-clean/
+bloatware-remove/
 │
 ├── script.sh   # Bash script for Linux
 ├── script.bat  # Batch script for Windows
@@ -196,4 +194,4 @@ miui-clean/
 
 Якщо Вам подобається цей проєкт, можете поставити зірку!
 
-<img src="https://img.shields.io/github/stars/quinsaiz/miui-clean?style=social" alt="GitHub star"/>
+<img src="https://img.shields.io/github/stars/quinsaiz/bloatware-remove?style=social" alt="GitHub star"/>
