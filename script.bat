@@ -1,231 +1,254 @@
 @echo off
-chcp 65001 >nul
-title MIUI/HyperOS видалення програм від Quinsaiz
-setlocal enabledelayedexpansion
+setlocal EnableDelayedExpansion
 
 :check_adb
-if not exist adb.exe (
-    cls
-    echo [RED]ADB не знайдено. Розпакуйте його в папку зі скриптом або встановіть глобально.[NC]
-    pause
-    goto check_adb
+if exist "adb.exe" (
+    set ADB=adb.exe
+    echo Using local ADB binary from script directory.
+) else (
+    where adb >nul 2>&1
+    if !ERRORLEVEL! equ 0 (
+        set ADB=adb
+        echo Using system-wide ADB.
+    ) else (
+        echo ADB not found. Install it or place adb.exe in the script folder.
+        exit /b 1
+    )
 )
 
 :check_device
-cls
-echo Перевірка підключення пристрою...
-adb kill-server >nul 2>&1
-adb start-server >nul 2>&1
-for /f "tokens=1" %%a in ('adb devices ^| findstr /r /c:"[0-9A-Za-z].*device$"') do set "device=%%a"
-if not defined device (
-    cls
-    echo [RED]Пристрій не підключено![NC]
-    echo Перевірте:
-    echo - Увімкніть режим розробника та USB-налагодження.
-    echo - Підключіть пристрій через USB.
-    echo - Дозвольте доступ до ADB на пристрої.
-    pause
-    goto check_device
+set retries=3
+:check_device_loop
+!ADB! devices | find "device" >nul
+if !ERRORLEVEL! neq 0 (
+    echo Device is not connected or USB debugging is not configured.
+    echo Check:
+    echo 1. Whether developer mode and USB debugging are enabled.
+    echo 2. Whether the device is connected via USB.
+    echo 3. ADB access is allowed on the device.
+    set /p "=Press Enter to retry (!retries! attempts left)..." <nul
+    set /p retry=
+    set /a retries-=1
+    if !retries! leq 0 (
+        echo Failed to detect device after multiple attempts. Exiting.
+        exit /b 1
+    )
+    goto check_device_loop
 ) else (
-    echo [GREEN]Пристрій підключено успішно![NC]
-    echo ID: !device!
-    echo MIUI/HyperOS видалення програм від Quinsaiz
+    echo Device connected successfully!
+    for /f "tokens=1" %%i in ('!ADB! devices ^| find "device"') do set DEVICE_ID=%%i
+    echo Device ID: !DEVICE_ID!
 )
 
 :main_menu
 cls
-echo === MIUI/HyperOS видалення програм від Quinsaiz ===
-echo 1) Системні програми MIUI/HyperOS
-echo 2) Службові утиліти (критичні)
-echo 3) Програми від Google
-echo 4) Сторонні додатки
-echo 0) Вихід
+echo === MIUI/HyperOS bloatware app removal script by Quinsaiz ===
+echo 1) MIUI/HyperOS system apps
+echo 2) System utility
+echo 3) Google apps
+echo 4) Third-party apps
+echo 99) Restore Xiaomi Dialer ^& Messages
+echo 0) Exit
 echo -------------------------
-set /p choice="Виберіть опцію: "
-
+set /p "choice=Select an option: "
 if "!choice!"=="1" goto miui_menu
 if "!choice!"=="2" goto utilities_menu
 if "!choice!"=="3" goto google_menu
 if "!choice!"=="4" goto third_party_menu
-if "!choice!"=="0" goto exit
+if "!choice!"=="99" goto restore_dialer_messages
+if "!choice!"=="0" (!ADB! kill-server & echo Good luck! & exit /b 0)
+echo Wrong choice.
+timeout /t 1 >nul
 goto main_menu
 
 :miui_menu
 cls
-echo === Системні програми MIUI/HyperOS ===
-echo 1) GetApps (com.xiaomi.mipicks)
-echo 2) Mi Browser (com.mi.globalbrowser)
-echo 3) Mi Home (com.xiaomi.smarthome)
-echo 4) Mi Mover (com.miui.huanji)
-echo 5) Mi Music (com.miui.player)
-echo 6) Mi Video (com.miui.video com.miui.videoplayer)
-echo 7) POCO Community (com.mi.global.pocobbs)
-echo 8) POCO Store (com.mi.global.pocostore)
-echo 9) Ігри Xiaomi (com.xiaomi.glgm)
-echo 10) Карусель шпалер (com.miui.android.fashiongallery)
-echo 11) Стрічка віджетів MinusScreen (com.mi.globalminusscreen com.mi.android.globalminusscreen)
+echo === MIUI/HyperOS system apps ===
+echo 1) Cleaner (com.miui.cleaner)
+echo 2) Compass (com.miui.compass)
+echo 3) GetApps (com.xiaomi.mipicks)
+echo 4) Mi Browser (com.mi.globalbrowser)
+echo 5) Mi Home (com.xiaomi.smarthome)
+echo 6) Mi Mover (com.miui.huanji)
+echo 7) Mi Music (com.miui.player)
+echo 8) Mi Video (com.miui.video com.miui.videoplayer)
+echo 9) MinusScreen Widget (com.mi.globalminusscreen com.mi.android.globalminusscreen)
+echo 10) POCO Store ^& Community (com.mi.global.pocostore com.mi.global.pocobbs)
+echo 11) QR Scanner (com.xiaomi.scanner)
 echo 12) ShareMe (com.xiaomi.midrop)
-echo 13) Завантаження (com.android.providers.downloads.ui)
-echo 14) Компас (com.miui.compass)
-echo 15) Очищувач (com.miui.cleaner)
-echo 16) Сканер QR (com.xiaomi.scanner)
-echo 17) Теми (com.android.thememanager)
-echo 98) Видалити вибірково
-echo 99) Перевірити статус всіх програм
-echo 0) Повернутися до головного меню
+echo 13) Downloads (com.android.providers.downloads.ui)
+echo 14) Themes (com.android.thememanager)
+echo 15) Wallpaper Carousel (com.miui.android.fashiongallery)
+echo 16) Xiaomi Games (com.xiaomi.glgm)
+echo 98) Uninstall selectively
+echo 99) Check status of apps
+echo 0) Return to main menu
 echo -------------------------
-set /p app_choice="Виберіть програму: "
-if "!app_choice!"=="1" call :action_menu "GetApps" "com.xiaomi.mipicks" "Видалити" "miui_menu"
-if "!app_choice!"=="2" call :action_menu "Mi Browser" "com.mi.globalbrowser" "Видалити" "miui_menu"
-if "!app_choice!"=="3" call :action_menu "Mi Home" "com.xiaomi.smarthome" "Видалити" "miui_menu"
-if "!app_choice!"=="4" call :action_menu "Mi Mover" "com.miui.huanji" "Видалити" "miui_menu"
-if "!app_choice!"=="5" call :action_menu "Mi Music" "com.miui.player" "Видалити" "miui_menu"
-if "!app_choice!"=="6" call :action_menu "Mi Video" "com.miui.video com.miui.videoplayer" "Видалити" "miui_menu"
-if "!app_choice!"=="7" call :action_menu "POCO Community" "com.mi.global.pocobbs" "Видалити" "miui_menu"
-if "!app_choice!"=="8" call :action_menu "POCO Store" "com.mi.global.pocostore" "Видалити" "miui_menu"
-if "!app_choice!"=="9" call :action_menu "Ігри Xiaomi" "com.xiaomi.glgm" "Видалити" "miui_menu"
-if "!app_choice!"=="10" call :action_menu "Карусель шпалер" "com.miui.android.fashiongallery" "Видалити" "miui_menu"
-if "!app_choice!"=="11" call :action_menu "Стрічка віджетів MinusScreen" "com.mi.globalminusscreen com.mi.android.globalminusscreen" "Видалити" "miui_menu"
-if "!app_choice!"=="12" call :action_menu "ShareMe" "com.xiaomi.midrop" "Видалити" "miui_menu"
-if "!app_choice!"=="13" call :action_menu "Завантаження" "com.android.providers.downloads.ui" "Видалити" "miui_menu"
-if "!app_choice!"=="14" call :action_menu "Компас" "com.miui.compass" "Видалити" "miui_menu"
-if "!app_choice!"=="15" call :action_menu "Очищувач" "com.miui.cleaner" "Видалити" "miui_menu"
-if "!app_choice!"=="16" call :action_menu "Сканер QR" "com.xiaomi.scanner" "Видалити" "miui_menu"
-if "!app_choice!"=="17" call :action_menu "Теми" "com.android.thememanager" "Видалити" "miui_menu"
-if "!app_choice!"=="98" call :selective_uninstall "miui_menu" "com.xiaomi.mipicks" "com.mi.globalbrowser" "com.xiaomi.smarthome" "com.miui.huanji" "com.miui.player" "com.miui.video com.miui.videoplayer" "com.mi.global.pocobbs" "com.mi.global.pocostore" "com.xiaomi.glgm" "com.miui.android.fashiongallery" "com.mi.globalminusscreen com.mi.android.globalminusscreen" "com.xiaomi.midrop" "com.android.providers.downloads.ui" "com.miui.compass" "com.miui.cleaner" "com.xiaomi.scanner" "com.android.thememanager"
-if "!app_choice!"=="99" call :check_all_status "miui_menu" "com.xiaomi.mipicks" "com.mi.globalbrowser" "com.xiaomi.smarthome" "com.miui.huanji" "com.miui.player" "com.miui.video com.miui.videoplayer" "com.mi.global.pocobbs" "com.mi.global.pocostore" "com.xiaomi.glgm" "com.miui.android.fashiongallery" "com.mi.globalminusscreen com.mi.android.globalminusscreen" "com.xiaomi.midrop" "com.android.providers.downloads.ui" "com.miui.compass" "com.miui.cleaner" "com.xiaomi.scanner" "com.android.thememanager"
+set /p "app_choice=Select an app: "
+if "!app_choice!"=="1" call :action_menu "Cleaner" "com.miui.cleaner" "Uninstall" "miui_menu"
+if "!app_choice!"=="2" call :action_menu "Compass" "com.miui.compass" "Uninstall" "miui_menu"
+if "!app_choice!"=="3" call :action_menu "GetApps" "com.xiaomi.mipicks" "Uninstall" "miui_menu"
+if "!app_choice!"=="4" call :action_menu "Mi Browser" "com.mi.globalbrowser" "Uninstall" "miui_menu"
+if "!app_choice!"=="5" call :action_menu "Mi Home" "com.xiaomi.smarthome" "Uninstall" "miui_menu"
+if "!app_choice!"=="6" call :action_menu "Mi Mover" "com.miui.huanji" "Uninstall" "miui_menu"
+if "!app_choice!"=="7" call :action_menu "Mi Music" "com.miui.player" "Uninstall" "miui_menu"
+if "!app_choice!"=="8" call :action_menu "Mi Video" "com.miui.video com.miui.videoplayer" "Uninstall" "miui_menu"
+if "!app_choice!"=="9" call :action_menu "MinusScreen Widget" "com.mi.globalminusscreen com.mi.android.globalminusscreen" "Uninstall" "miui_menu"
+if "!app_choice!"=="10" call :action_menu "POCO Store & Community" "com.mi.global.pocostore com.mi.global.pocobbs" "Uninstall" "miui_menu"
+if "!app_choice!"=="11" call :action_menu "QR Scanner" "com.xiaomi.scanner" "Uninstall" "miui_menu"
+if "!app_choice!"=="12" call :action_menu "ShareMe" "com.xiaomi.midrop" "Uninstall" "miui_menu"
+if "!app_choice!"=="13" call :action_menu "Downloads" "com.android.providers.downloads.ui" "Uninstall" "miui_menu"
+if "!app_choice!"=="14" call :action_menu "Themes" "com.android.thememanager" "Uninstall" "miui_menu"
+if "!app_choice!"=="15" call :action_menu "Wallpaper Carousel" "com.miui.android.fashiongallery" "Uninstall" "miui_menu"
+if "!app_choice!"=="16" call :action_menu "Xiaomi Games" "com.xiaomi.glgm" "Uninstall" "miui_menu"
+if "!app_choice!"=="98" call :selective_uninstall "miui_menu" "com.miui.cleaner" "com.miui.compass" "com.xiaomi.mipicks" "com.mi.globalbrowser" "com.xiaomi.smarthome" "com.miui.huanji" "com.miui.player" "com.miui.video com.miui.videoplayer" "com.mi.globalminusscreen com.mi.android.globalminusscreen" "com.mi.global.pocostore com.mi.global.pocobbs" "com.xiaomi.scanner" "com.xiaomi.midrop" "com.android.providers.downloads.ui" "com.android.thememanager" "com.miui.android.fashiongallery" "com.xiaomi.glgm"
+if "!app_choice!"=="99" call :check_all_status "miui_menu" "com.miui.cleaner" "com.miui.compass" "com.xiaomi.mipicks" "com.mi.globalbrowser" "com.xiaomi.smarthome" "com.miui.huanji" "com.miui.player" "com.miui.video com.miui.videoplayer" "com.mi.globalminusscreen com.mi.android.globalminusscreen" "com.mi.global.pocostore com.mi.global.pocobbs" "com.xiaomi.scanner" "com.xiaomi.midrop" "com.android.providers.downloads.ui" "com.android.thememanager" "com.miui.android.fashiongallery" "com.xiaomi.glgm"
 if "!app_choice!"=="0" goto main_menu
+echo Wrong choice.
+timeout /t 1 >nul
 goto miui_menu
 
 :utilities_menu
 cls
-echo === Службові утиліти (критичні) ===
-echo 1) Bluetooth MIDI (com.android.bluetoothmidiservice)
-echo 2) Device Health Services (com.google.android.apps.turbo)
-echo 3) MMS служба (com.android.mms.service)
-echo 4) Qualcomm Miracast (com.qualcomm.atfwd)
-echo 5) Qualcomm RCS повідомлення (com.qualcomm.qti.uceShimService)
-echo 6) Quick Apps (com.miui.hybrid com.miui.hybrid.accessory)
-echo 7) TalkBack (com.google.android.marvin.talkback)
-echo 8) Китайські віртуальні картки (com.miui.vsimcore)
-echo 9) Китайський варіант Wi-Fi (com.wapi.wapicertmanage)
-echo 10) Аналітика MIUI (com.miui.analytics)
-echo 11) Голосова активація (com.quicinc.voice.activation)
-echo 12) Китайський оприділяч номера (com.miui.yellowpage)
-echo 13) Звіти про помилки та зворотній зв'язок (com.miui.bugreport com.miui.miservice)
-echo 14) Ініціалізація Google (com.google.android.onetimeinitializer com.google.android.partnersetup)
-echo 15) Китайський Mi Pay (com.xiaomi.payment com.mipay.wallet.in)
-echo 16) Китайський акційний сервіс (com.xiaomi.mirecycle)
-echo 17) Китайський сервіс підтвердження платежів (com.tencent.soter.soterserver)
-echo 18) Логи батареї Catchlog (com.bsp.catchlog)
-echo 19) Меню SIM-карти (com.android.stk)
-echo 20) Навігаційні жести (com.android.internal.systemui.navbar.gestural com.android.internal.systemui.navbar.gestural_extra_wide_back com.android.internal.systemui.navbar.gestural_narrow_back com.android.internal.systemui.navbar.gestural_wide_back com.android.internal.systemui.navbar.threebutton)
-echo 21) Оптимізація MIUI Daemon (com.miui.daemon)
-echo 22) Оптимізація процесів (com.xiaomi.joyose)
-echo 23) Очікування OK Google (com.android.hotwordenrollment.okgoogle com.android.hotwordenrollment.xgoogle)
-echo 24) Реклама MIUI (com.miui.msa.global)
-echo 25) Рекламні закладки (com.android.bookmarkprovider com.android.providers.partnerbookmarks)
-echo 26) Рекомендації друку Google (com.google.android.printservice.recommendation)
-echo 27) Резервна копія у хмарі (com.miui.cloudbackup com.miui.cloudservice com.miui.cloudservice.sysbase)
-echo 28) Резервне копіювання шпалер (com.android.wallpaperbackup)
-echo 29) Сенсорний помічник (com.miui.touchassistant)
-echo 30) Служба друку (com.android.bips com.android.printspooler)
-echo 31) Стрічка віджетів App vault (com.miui.personalassistant)
-echo 32) Трасування системи (com.android.traceur)
-echo 33) Шрифт Noto Serif (com.android.theme.font.notoserifsource)
-echo 98) Видалити вибірково
-echo 99) Перевірити статус всіх програм
-echo 0) Повернутися до головного меню
+echo === System utility ===
+echo 1) Ad Bookmarks (com.android.bookmarkprovider com.android.providers.partnerbookmarks)
+echo 2) Battery Logs Catchlog (com.bsp.catchlog)
+echo 3) Bluetooth MIDI (com.android.bluetoothmidiservice)
+echo 4) Cloud Backup (com.miui.cloudbackup com.miui.cloudservice com.miui.cloudservice.sysbase)
+echo 5) Google One Time Initialization (com.google.android.onetimeinitializer com.google.android.partnersetup)
+echo 6) Google Print Recommendations (com.google.android.printservice.recommendation)
+echo 7) MIUI Ads (com.miui.msa.global)
+echo 8) MIUI Analytics (com.miui.analytics)
+echo 9) MIUI Daemon (com.miui.daemon)
+echo 10) MMS Service (com.android.mms.service)
+echo 11) Navigation Gestures (com.android.internal.systemui.navbar.gestural com.android.internal.systemui.navbar.gestural_extra_wide_back com.android.internal.systemui.navbar.gestural_narrow_back com.android.internal.systemui.navbar.gestural_wide_back com.android.internal.systemui.navbar.threebutton)
+echo 12) Noto Serif Font (com.android.theme.font.notoserifsource)
+echo 13) OK Google Detection (com.android.hotwordenrollment.okgoogle com.android.hotwordenrollment.xgoogle)
+echo 14) Print Service (com.android.bips com.android.printspooler)
+echo 15) Quick Apps (com.miui.hybrid com.miui.hybrid.accessory)
+echo 16) SIM Card Menu (com.android.stk)
+echo 17) System Tracing (com.android.traceur)
+echo 18) TalkBack (com.google.android.marvin.talkback)
+echo 19) Touch Assistant (com.miui.touchassistant)
+echo 20) Voice Activation (com.quicinc.voice.activation)
+echo 21) Wallpaper Backup (com.android.wallpaperbackup)
+echo 22) App Vault Widget (com.miui.personalassistant)
+echo 23) Bug Reports ^& Feedback (com.miui.bugreport com.miui.miservice)
+echo 24) Chinese Caller ID (com.miui.yellowpage)
+echo 25) Chinese Mi Pay (com.xiaomi.payment com.mipay.wallet.in)
+echo 26) Chinese Payment Verification Service (com.tencent.soter.soterserver)
+echo 27) Chinese Promo Service (com.xiaomi.mirecycle)
+echo 28) Chinese Virtual Cards (com.miui.vsimcore)
+echo 29) Chinese Wi-Fi Variant (com.wapi.wapicertmanage)
+echo 30) Device Health Services (com.google.android.apps.turbo)
+echo 31) Interconnectivity ^& Services (com.milink.service com.xiaomi.mirror)
+echo 32) Joyose (com.xiaomi.joyose)
+echo 33) Qualcomm Miracast (com.qualcomm.atfwd)
+echo 34) Qualcomm RCS (com.qualcomm.qti.uceShimService)
+echo 98) Uninstall selectively
+echo 99) Check status of apps
+echo 0) Return to main menu
 echo -------------------------
-set /p app_choice="Виберіть програму: "
-if "!app_choice!"=="1" call :action_menu "Bluetooth MIDI" "com.android.bluetoothmidiservice" "Відключити" "utilities_menu"
-if "!app_choice!"=="2" call :action_menu "Device Health Services" "com.google.android.apps.turbo" "Відключити" "utilities_menu"
-if "!app_choice!"=="3" call :action_menu "MMS служба" "com.android.mms.service" "Відключити" "utilities_menu"
-if "!app_choice!"=="4" call :action_menu "Qualcomm Miracast" "com.qualcomm.atfwd" "Відключити" "utilities_menu"
-if "!app_choice!"=="5" call :action_menu "Qualcomm RCS повідомлення" "com.qualcomm.qti.uceShimService" "Відключити" "utilities_menu"
-if "!app_choice!"=="6" call :action_menu "Quick Apps" "com.miui.hybrid com.miui.hybrid.accessory" "Відключити" "utilities_menu"
-if "!app_choice!"=="7" call :action_menu "TalkBack" "com.google.android.marvin.talkback" "Відключити" "utilities_menu"
-if "!app_choice!"=="8" call :action_menu "Китайські віртуальні картки" "com.miui.vsimcore" "Відключити" "utilities_menu"
-if "!app_choice!"=="9" call :action_menu "Китайський варіант Wi-Fi" "com.wapi.wapicertmanage" "Відключити" "utilities_menu"
-if "!app_choice!"=="10" call :action_menu "Аналітика MIUI" "com.miui.analytics" "Відключити" "utilities_menu"
-if "!app_choice!"=="11" call :action_menu "Голосова активація" "com.quicinc.voice.activation" "Відключити" "utilities_menu"
-if "!app_choice!"=="12" call :action_menu "Китайський оприділяч номера" "com.miui.yellowpage" "Відключити" "utilities_menu"
-if "!app_choice!"=="13" call :action_menu "Звіти про помилки та зворотній зв'язок" "com.miui.bugreport com.miui.miservice" "Відключити" "utilities_menu"
-if "!app_choice!"=="14" call :action_menu "Ініціалізація Google" "com.google.android.onetimeinitializer com.google.android.partnersetup" "Відключити" "utilities_menu"
-if "!app_choice!"=="15" call :action_menu "Китайський Mi Pay" "com.xiaomi.payment com.mipay.wallet.in" "Відключити" "utilities_menu"
-if "!app_choice!"=="16" call :action_menu "Китайський акційний сервіс" "com.xiaomi.mirecycle" "Відключити" "utilities_menu"
-if "!app_choice!"=="17" call :action_menu "Китайський сервіс підтвердження платежів" "com.tencent.soter.soterserver" "Відключити" "utilities_menu"
-if "!app_choice!"=="18" call :action_menu "Логи батареї Catchlog" "com.bsp.catchlog" "Відключити" "utilities_menu"
-if "!app_choice!"=="19" call :action_menu "Меню SIM-карти" "com.android.stk" "Відключити" "utilities_menu"
-if "!app_choice!"=="20" call :action_menu "Навігаційні жести" "com.android.internal.systemui.navbar.gestural com.android.internal.systemui.navbar.gestural_extra_wide_back com.android.internal.systemui.navbar.gestural_narrow_back com.android.internal.systemui.navbar.gestural_wide_back com.android.internal.systemui.navbar.threebutton" "Відключити" "utilities_menu"
-if "!app_choice!"=="21" call :action_menu "Оптимізація MIUI Daemon" "com.miui.daemon" "Відключити" "utilities_menu"
-if "!app_choice!"=="22" call :action_menu "Оптимізація процесів" "com.xiaomi.joyose" "Відключити" "utilities_menu"
-if "!app_choice!"=="23" call :action_menu "Очікування OK Google" "com.android.hotwordenrollment.okgoogle com.android.hotwordenrollment.xgoogle" "Відключити" "utilities_menu"
-if "!app_choice!"=="24" call :action_menu "Реклама MIUI" "com.miui.msa.global" "Відключити" "utilities_menu"
-if "!app_choice!"=="25" call :action_menu "Рекламні закладки" "com.android.bookmarkprovider com.android.providers.partnerbookmarks" "Відключити" "utilities_menu"
-if "!app_choice!"=="26" call :action_menu "Рекомендації друку Google" "com.google.android.printservice.recommendation" "Відключити" "utilities_menu"
-if "!app_choice!"=="27" call :action_menu "Резервна копія у хмарі" "com.miui.cloudbackup com.miui.cloudservice com.miui.cloudservice.sysbase" "Відключити" "utilities_menu"
-if "!app_choice!"=="28" call :action_menu "Резервне копіювання шпалер" "com.android.wallpaperbackup" "Відключити" "utilities_menu"
-if "!app_choice!"=="29" call :action_menu "Сенсорний помічник" "com.miui.touchassistant" "Відключити" "utilities_menu"
-if "!app_choice!"=="30" call :action_menu "Служба друку" "com.android.bips com.android.printspooler" "Відключити" "utilities_menu"
-if "!app_choice!"=="31" call :action_menu "Стрічка віджетів App vault" "com.miui.personalassistant" "Відключити" "utilities_menu"
-if "!app_choice!"=="32" call :action_menu "Трасування системи" "com.android.traceur" "Відключити" "utilities_menu"
-if "!app_choice!"=="33" call :action_menu "Шрифт Noto Serif" "com.android.theme.font.notoserifsource" "Відключити" "utilities_menu"
-if "!app_choice!"=="98" call :selective_uninstall "utilities_menu" "com.android.bluetoothmidiservice" "com.google.android.apps.turbo" "com.android.mms.service" "com.qualcomm.atfwd" "com.qualcomm.qti.uceShimService" "com.miui.hybrid com.miui.hybrid.accessory" "com.google.android.marvin.talkback" "com.miui.vsimcore" "com.wapi.wapicertmanage" "com.miui.analytics" "com.quicinc.voice.activation" "com.miui.yellowpage" "com.miui.bugreport com.miui.miservice" "com.google.android.onetimeinitializer com.google.android.partnersetup" "com.xiaomi.payment com.mipay.wallet.in" "com.xiaomi.mirecycle" "com.tencent.soter.soterserver" "com.bsp.catchlog" "com.android.stk" "com.android.internal.systemui.navbar.gestural com.android.internal.systemui.navbar.gestural_extra_wide_back com.android.internal.systemui.navbar.gestural_narrow_back com.android.internal.systemui.navbar.gestural_wide_back com.android.internal.systemui.navbar.threebutton" "com.miui.daemon" "com.xiaomi.joyose" "com.android.hotwordenrollment.okgoogle com.android.hotwordenrollment.xgoogle" "com.miui.msa.global" "com.android.bookmarkprovider com.android.providers.partnerbookmarks" "com.google.android.printservice.recommendation" "com.miui.cloudbackup com.miui.cloudservice com.miui.cloudservice.sysbase" "com.android.wallpaperbackup" "com.miui.touchassistant" "com.android.bips com.android.printspooler" "com.miui.personalassistant" "com.android.traceur" "com.android.theme.font.notoserifsource"
-if "!app_choice!"=="99" call :check_all_status "utilities_menu" "com.android.bluetoothmidiservice" "com.google.android.apps.turbo" "com.android.mms.service" "com.qualcomm.atfwd" "com.qualcomm.qti.uceShimService" "com.miui.hybrid com.miui.hybrid.accessory" "com.google.android.marvin.talkback" "com.miui.vsimcore" "com.wapi.wapicertmanage" "com.miui.analytics" "com.quicinc.voice.activation" "com.miui.yellowpage" "com.miui.bugreport com.miui.miservice" "com.google.android.onetimeinitializer com.google.android.partnersetup" "com.xiaomi.payment com.mipay.wallet.in" "com.xiaomi.mirecycle" "com.tencent.soter.soterserver" "com.bsp.catchlog" "com.android.stk" "com.android.internal.systemui.navbar.gestural com.android.internal.systemui.navbar.gestural_extra_wide_back com.android.internal.systemui.navbar.gestural_narrow_back com.android.internal.systemui.navbar.gestural_wide_back com.android.internal.systemui.navbar.threebutton" "com.miui.daemon" "com.xiaomi.joyose" "com.android.hotwordenrollment.okgoogle com.android.hotwordenrollment.xgoogle" "com.miui.msa.global" "com.android.bookmarkprovider com.android.providers.partnerbookmarks" "com.google.android.printservice.recommendation" "com.miui.cloudbackup com.miui.cloudservice com.miui.cloudservice.sysbase" "com.android.wallpaperbackup" "com.miui.touchassistant" "com.android.bips com.android.printspooler" "com.miui.personalassistant" "com.android.traceur" "com.android.theme.font.notoserifsource"
+set /p "app_choice=Select an app: "
+if "!app_choice!"=="1" call :action_menu "Ad Bookmarks" "com.android.bookmarkprovider com.android.providers.partnerbookmarks" "Disable" "utilities_menu"
+if "!app_choice!"=="2" call :action_menu "Battery Logs Catchlog" "com.bsp.catchlog" "Disable" "utilities_menu"
+if "!app_choice!"=="3" call :action_menu "Bluetooth MIDI" "com.android.bluetoothmidiservice" "Disable" "utilities_menu"
+if "!app_choice!"=="4" call :action_menu "Cloud Backup" "com.miui.cloudbackup com.miui.cloudservice com.miui.cloudservice.sysbase" "Disable" "utilities_menu"
+if "!app_choice!"=="5" call :action_menu "Google One Time Initialization" "com.google.android.onetimeinitializer com.google.android.partnersetup" "Disable" "utilities_menu"
+if "!app_choice!"=="6" call :action_menu "Google Print Recommendations" "com.google.android.printservice.recommendation" "Disable" "utilities_menu"
+if "!app_choice!"=="7" call :action_menu "MIUI Ads" "com.miui.msa.global" "Disable" "utilities_menu"
+if "!app_choice!"=="8" call :action_menu "MIUI Analytics" "com.miui.analytics" "Disable" "utilities_menu"
+if "!app_choice!"=="9" call :action_menu "MIUI Daemon" "com.miui.daemon" "Disable" "utilities_menu"
+if "!app_choice!"=="10" call :action_menu "MMS Service" "com.android.mms.service" "Disable" "utilities_menu"
+if "!app_choice!"=="11" call :action_menu "Navigation Gestures" "com.android.internal.systemui.navbar.gestural com.android.internal.systemui.navbar.gestural_extra_wide_back com.android.internal.systemui.navbar.gestural_narrow_back com.android.internal.systemui.navbar.gestural_wide_back com.android.internal.systemui.navbar.threebutton" "Disable" "utilities_menu"
+if "!app_choice!"=="12" call :action_menu "Noto Serif Font" "com.android.theme.font.notoserifsource" "Disable" "utilities_menu"
+if "!app_choice!"=="13" call :action_menu "OK Google Detection" "com.android.hotwordenrollment.okgoogle com.android.hotwordenrollment.xgoogle" "Disable" "utilities_menu"
+if "!app_choice!"=="14" call :action_menu "Print Service" "com.android.bips com.android.printspooler" "Disable" "utilities_menu"
+if "!app_choice!"=="15" call :action_menu "Quick Apps" "com.miui.hybrid com.miui.hybrid.accessory" "Disable" "utilities_menu"
+if "!app_choice!"=="16" call :action_menu "SIM Card Menu" "com.android.stk" "Disable" "utilities_menu"
+if "!app_choice!"=="17" call :action_menu "System Tracing" "com.android.traceur" "Disable" "utilities_menu"
+if "!app_choice!"=="18" call :action_menu "TalkBack" "com.google.android.marvin.talkback" "Disable" "utilities_menu"
+if "!app_choice!"=="19" call :action_menu "Touch Assistant" "com.miui.touchassistant" "Disable" "utilities_menu"
+if "!app_choice!"=="20" call :action_menu "Voice Activation" "com.quicinc.voice.activation" "Disable" "utilities_menu"
+if "!app_choice!"=="21" call :action_menu "Wallpaper Backup" "com.android.wallpaperbackup" "Disable" "utilities_menu"
+if "!app_choice!"=="22" call :action_menu "App Vault Widget" "com.miui.personalassistant" "Disable" "utilities_menu"
+if "!app_choice!"=="23" call :action_menu "Bug Reports & Feedback" "com.miui.bugreport com.miui.miservice" "Disable" "utilities_menu"
+if "!app_choice!"=="24" call :action_menu "Chinese Caller ID" "com.miui.yellowpage" "Disable" "utilities_menu"
+if "!app_choice!"=="25" call :action_menu "Chinese Mi Pay" "com.xiaomi.payment com.mipay.wallet.in" "Disable" "utilities_menu"
+if "!app_choice!"=="26" call :action_menu "Chinese Payment Verification Service" "com.tencent.soter.soterserver" "Disable" "utilities_menu"
+if "!app_choice!"=="27" call :action_menu "Chinese Promo Service" "com.xiaomi.mirecycle" "Disable" "utilities_menu"
+if "!app_choice!"=="28" call :action_menu "Chinese Virtual Cards" "com.miui.vsimcore" "Disable" "utilities_menu"
+if "!app_choice!"=="29" call :action_menu "Chinese Wi-Fi Variant" "com.wapi.wapicertmanage" "Disable" "utilities_menu"
+if "!app_choice!"=="30" call :action_menu "Device Health Services" "com.google.android.apps.turbo" "Disable" "utilities_menu"
+if "!app_choice!"=="31" call :action_menu "Interconnectivity & Services" "com.milink.service com.xiaomi.mirror" "Disable" "utilities_menu"
+if "!app_choice!"=="32" call :action_menu "Joyose" "com.xiaomi.joyose" "Disable" "utilities_menu"
+if "!app_choice!"=="33" call :action_menu "Qualcomm Miracast" "com.qualcomm.atfwd" "Disable" "utilities_menu"
+if "!app_choice!"=="34" call :action_menu "Qualcomm RCS" "com.qualcomm.qti.uceShimService" "Disable" "utilities_menu"
+if "!app_choice!"=="98" call :selective_uninstall "utilities_menu" "com.android.bookmarkprovider com.android.providers.partnerbookmarks" "com.bsp.catchlog" "com.android.bluetoothmidiservice" "com.miui.cloudbackup com.miui.cloudservice com.miui.cloudservice.sysbase" "com.google.android.onetimeinitializer com.google.android.partnersetup" "com.google.android.printservice.recommendation" "com.miui.msa.global" "com.miui.analytics" "com.miui.daemon" "com.android.mms.service" "com.android.internal.systemui.navbar.gestural com.android.internal.systemui.navbar.gestural_extra_wide_back com.android.internal.systemui.navbar.gestural_narrow_back com.android.internal.systemui.navbar.gestural_wide_back com.android.internal.systemui.navbar.threebutton" "com.android.theme.font.notoserifsource" "com.android.hotwordenrollment.okgoogle com.android.hotwordenrollment.xgoogle" "com.android.bips com.android.printspooler" "com.miui.hybrid com.miui.hybrid.accessory" "com.android.stk" "com.android.traceur" "com.google.android.marvin.talkback" "com.miui.touchassistant" "com.quicinc.voice.activation" "com.android.wallpaperbackup" "com.miui.personalassistant" "com.miui.bugreport com.miui.miservice" "com.miui.yellowpage" "com.xiaomi.payment com.mipay.wallet.in" "com.tencent.soter.soterserver" "com.xiaomi.mirecycle" "com.miui.vsimcore" "com.wapi.wapicertmanage" "com.google.android.apps.turbo" "com.milink.service com.xiaomi.mirror" "com.xiaomi.joyose" "com.qualcomm.atfwd" "com.qualcomm.qti.uceShimService"
+if "!app_choice!"=="99" call :check_all_status "utilities_menu" "com.android.bookmarkprovider com.android.providers.partnerbookmarks" "com.bsp.catchlog" "com.android.bluetoothmidiservice" "com.miui.cloudbackup com.miui.cloudservice com.miui.cloudservice.sysbase" "com.google.android.onetimeinitializer com.google.android.partnersetup" "com.google.android.printservice.recommendation" "com.miui.msa.global" "com.miui.analytics" "com.miui.daemon" "com.android.mms.service" "com.android.internal.systemui.navbar.gestural com.android.internal.systemui.navbar.gestural_extra_wide_back com.android.internal.systemui.navbar.gestural_narrow_back com.android.internal.systemui.navbar.gestural_wide_back com.android.internal.systemui.navbar.threebutton" "com.android.theme.font.notoserifsource" "com.android.hotwordenrollment.okgoogle com.android.hotwordenrollment.xgoogle" "com.android.bips com.android.printspooler" "com.miui.hybrid com.miui.hybrid.accessory" "com.android.stk" "com.android.traceur" "com.google.android.marvin.talkback" "com.miui.touchassistant" "com.quicinc.voice.activation" "com.android.wallpaperbackup" "com.miui.personalassistant" "com.miui.bugreport com.miui.miservice" "com.miui.yellowpage" "com.xiaomi.payment com.mipay.wallet.in" "com.tencent.soter.soterserver" "com.xiaomi.mirecycle" "com.miui.vsimcore" "com.wapi.wapicertmanage" "com.google.android.apps.turbo" "com.milink.service com.xiaomi.mirror" "com.xiaomi.joyose" "com.qualcomm.atfwd" "com.qualcomm.qti.uceShimService"
 if "!app_choice!"=="0" goto main_menu
+echo Wrong choice.
+timeout /t 1 >nul
 goto utilities_menu
 
 :google_menu
 cls
-echo === Програми від Google ===
+echo === Google apps ===
 echo 1) Android Auto (com.google.android.projection.gearhead)
 echo 2) Chrome (com.android.chrome)
-echo 3) Gmail (com.google.android.gm)
-echo 4) Google Assistant (com.google.android.apps.googleassistant)
-echo 5) Google Duo (com.google.android.apps.tachyon)
-echo 6) Google Files (com.google.android.apps.nbu.files)
-echo 7) Google Maps (com.google.android.apps.maps)
-echo 8) Google Music (com.google.android.music)
-echo 9) Google One (com.google.android.apps.subscriptions.red)
-echo 10) Google Drive (com.google.android.apps.docs)
-echo 11) Google Search (com.google.android.googlequicksearchbox)
-echo 12) Google Videos (com.google.android.videos)
-echo 13) Health Connect (com.google.android.apps.healthdata)
-echo 14) Safety Hub (com.google.android.apps.safetyhub)
-echo 15) YouTube (com.google.android.youtube)
-echo 16) YouTube Music (com.google.android.apps.youtube.music)
-echo 17) Цифрове благополуччя (com.google.android.apps.wellbeing)
-echo 98) Видалити вибірково
-echo 99) Перевірити статус всіх програм
-echo 0) Повернутися до головного меню
+echo 3) Contacts (com.google.android.contacts)
+echo 4) Dialer (com.google.android.dialer)
+echo 5) Digital Wellbeing (com.google.android.apps.wellbeing)
+echo 6) Drive (com.google.android.apps.docs)
+echo 7) Files (com.google.android.apps.nbu.files)
+echo 8) Gmail (com.google.android.gm)
+echo 9) Google Assistant (com.google.android.apps.googleassistant)
+echo 10) Google Duo (com.google.android.apps.tachyon)
+echo 11) Google Music (com.google.android.music)
+echo 12) Google One (com.google.android.apps.subscriptions.red)
+echo 13) Google Search (com.google.android.googlequicksearchbox)
+echo 14) Google Videos (com.google.android.videos)
+echo 15) Health Connect (com.google.android.apps.healthdata)
+echo 16) Maps (com.google.android.apps.maps)
+echo 17) Messages (google.android.apps.messaging)
+echo 18) Safety Hub (com.google.android.apps.safetyhub)
+echo 19) YouTube (com.google.android.youtube)
+echo 20) YouTube Music (com.google.android.apps.youtube.music)
+echo 98) Uninstall selectively
+echo 99) Check status of apps
+echo 0) Return to main menu
 echo -------------------------
-set /p app_choice="Виберіть програму: "
-if "!app_choice!"=="1" call :action_menu "Android Auto" "com.google.android.projection.gearhead" "Видалити" "google_menu"
-if "!app_choice!"=="2" call :action_menu "Chrome" "com.android.chrome" "Видалити" "google_menu"
-if "!app_choice!"=="3" call :action_menu "Gmail" "com.google.android.gm" "Видалити" "google_menu"
-if "!app_choice!"=="4" call :action_menu "Google Assistant" "com.google.android.apps.googleassistant" "Видалити" "google_menu"
-if "!app_choice!"=="5" call :action_menu "Google Duo" "com.google.android.apps.tachyon" "Видалити" "google_menu"
-if "!app_choice!"=="6" call :action_menu "Google Files" "com.google.android.apps.nbu.files" "Видалити" "google_menu"
-if "!app_choice!"=="7" call :action_menu "Google Maps" "com.google.android.apps.maps" "Видалити" "google_menu"
-if "!app_choice!"=="8" call :action_menu "Google Music" "com.google.android.music" "Видалити" "google_menu"
-if "!app_choice!"=="9" call :action_menu "Google One" "com.google.android.apps.subscriptions.red" "Видалити" "google_menu"
-if "!app_choice!"=="10" call :action_menu "Google Drive" "com.google.android.apps.docs" "Видалити" "google_menu"
-if "!app_choice!"=="11" call :action_menu "Google Search" "com.google.android.googlequicksearchbox" "Видалити" "google_menu"
-if "!app_choice!"=="12" call :action_menu "Google Videos" "com.google.android.videos" "Видалити" "google_menu"
-if "!app_choice!"=="13" call :action_menu "Health Connect" "com.google.android.apps.healthdata" "Видалити" "google_menu"
-if "!app_choice!"=="14" call :action_menu "Safety Hub" "com.google.android.apps.safetyhub" "Видалити" "google_menu"
-if "!app_choice!"=="15" call :action_menu "YouTube" "com.google.android.youtube" "Видалити" "google_menu"
-if "!app_choice!"=="16" call :action_menu "YouTube Music" "com.google.android.apps.youtube.music" "Видалити" "google_menu"
-if "!app_choice!"=="17" call :action_menu "Цифрове благополуччя" "com.google.android.apps.wellbeing" "Видалити" "google_menu"
-if "!app_choice!"=="98" call :selective_uninstall "google_menu" "com.google.android.projection.gearhead" "com.android.chrome" "com.google.android.gm" "com.google.android.apps.googleassistant" "com.google.android.apps.tachyon" "com.google.android.apps.nbu.files" "com.google.android.apps.maps" "com.google.android.music" "com.google.android.apps.subscriptions.red" "com.google.android.apps.docs" "com.google.android.googlequicksearchbox" "com.google.android.videos" "com.google.android.apps.healthdata" "com.google.android.apps.safetyhub" "com.google.android.youtube" "com.google.android.apps.youtube.music" "com.google.android.apps.wellbeing"
-if "!app_choice!"=="99" call :check_all_status "google_menu" "com.google.android.projection.gearhead" "com.android.chrome" "com.google.android.gm" "com.google.android.apps.googleassistant" "com.google.android.apps.tachyon" "com.google.android.apps.nbu.files" "com.google.android.apps.maps" "com.google.android.music" "com.google.android.apps.subscriptions.red" "com.google.android.apps.docs" "com.google.android.googlequicksearchbox" "com.google.android.videos" "com.google.android.apps.healthdata" "com.google.android.apps.safetyhub" "com.google.android.youtube" "com.google.android.apps.youtube.music" "com.google.android.apps.wellbeing"
+set /p "app_choice=Select an app: "
+if "!app_choice!"=="1" call :action_menu "Android Auto" "com.google.android.projection.gearhead" "Uninstall" "google_menu"
+if "!app_choice!"=="2" call :action_menu "Chrome" "com.android.chrome" "Uninstall" "google_menu"
+if "!app_choice!"=="3" call :action_menu "Contacts" "com.google.android.contacts" "Uninstall" "google_menu"
+if "!app_choice!"=="4" call :action_menu "Dialer" "com.google.android.dialer" "Uninstall" "google_menu"
+if "!app_choice!"=="5" call :action_menu "Digital Wellbeing" "com.google.android.apps.wellbeing" "Uninstall" "google_menu"
+if "!app_choice!"=="6" call :action_menu "Drive" "com.google.android.apps.docs" "Uninstall" "google_menu"
+if "!app_choice!"=="7" call :action_menu "Files" "com.google.android.apps.nbu.files" "Uninstall" "google_menu"
+if "!app_choice!"=="8" call :action_menu "Gmail" "com.google.android.gm" "Uninstall" "google_menu"
+if "!app_choice!"=="9" call :action_menu "Google Assistant" "com.google.android.apps.googleassistant" "Uninstall" "google_menu"
+if "!app_choice!"=="10" call :action_menu "Google Duo" "com.google.android.apps.tachyon" "Uninstall" "google_menu"
+if "!app_choice!"=="11" call :action_menu "Google Music" "com.google.android.music" "Uninstall" "google_menu"
+if "!app_choice!"=="12" call :action_menu "Google One" "com.google.android.apps.subscriptions.red" "Uninstall" "google_menu"
+if "!app_choice!"=="13" call :action_menu "Google Search" "com.google.android.googlequicksearchbox" "Uninstall" "google_menu"
+if "!app_choice!"=="14" call :action_menu "Google Videos" "com.google.android.videos" "Uninstall" "google_menu"
+if "!app_choice!"=="15" call :action_menu "Health Connect" "com.google.android.apps.healthdata" "Uninstall" "google_menu"
+if "!app_choice!"=="16" call :action_menu "Maps" "com.google.android.apps.maps" "Uninstall" "google_menu"
+if "!app_choice!"=="17" call :action_menu "Messages" "google.android.apps.messaging" "Uninstall" "google_menu"
+if "!app_choice!"=="18" call :action_menu "Safety Hub" "com.google.android.apps.safetyhub" "Uninstall" "google_menu"
+if "!app_choice!"=="19" call :action_menu "YouTube" "com.google.android.youtube" "Uninstall" "google_menu"
+if "!app_choice!"=="20" call :action_menu "YouTube Music" "com.google.android.apps.youtube.music" "Uninstall" "google_menu"
+if "!app_choice!"=="98" call :selective_uninstall "google_menu" "com.google.android.projection.gearhead" "com.android.chrome" "com.google.android.contacts" "com.google.android.dialer" "com.google.android.apps.wellbeing" "com.google.android.apps.docs" "com.google.android.apps.nbu.files" "com.google.android.gm" "com.google.android.apps.googleassistant" "com.google.android.apps.tachyon" "com.google.android.music" "com.google.android.apps.subscriptions.red" "com.google.android.googlequicksearchbox" "com.google.android.videos" "com.google.android.apps.healthdata" "com.google.android.apps.maps" "google.android.apps.messaging" "com.google.android.apps.safetyhub" "com.google.android.youtube" "com.google.android.apps.youtube.music"
+if "!app_choice!"=="99" call :check_all_status "google_menu" "com.google.android.projection.gearhead" "com.android.chrome" "com.google.android.contacts" "com.google.android.dialer" "com.google.android.apps.wellbeing" "com.google.android.apps.docs" "com.google.android.apps.nbu.files" "com.google.android.gm" "com.google.android.apps.googleassistant" "com.google.android.apps.tachyon" "com.google.android.music" "com.google.android.apps.subscriptions.red" "com.google.android.googlequicksearchbox" "com.google.android.videos" "com.google.android.apps.healthdata" "com.google.android.apps.maps" "google.android.apps.messaging" "com.google.android.apps.safetyhub" "com.google.android.youtube" "com.google.android.apps.youtube.music"
 if "!app_choice!"=="0" goto main_menu
+echo Wrong choice.
+timeout /t 1 >nul
 goto google_menu
 
 :third_party_menu
 cls
-echo === Сторонні додатки ===
+echo === Third-party apps ===
 echo 1) Amazon (com.amazon.mShop.android.shopping com.amazon.appmanager)
 echo 2) Block Juggle (com.block.juggle)
 echo 3) Booking (com.booking)
@@ -236,125 +259,35 @@ echo 7) Opera (com.opera.browser com.opera.preinstall)
 echo 8) Spotify (com.spotify.music)
 echo 9) Temu (com.einnovation.temu)
 echo 10) WPS Office (cn.wps.moffice_eng)
-echo 98) Видалити вибірково
-echo 99) Перевірити статус всіх програм
-echo 0) Повернутися до головного меню
+echo 98) Uninstall selectively
+echo 99) Check status of apps
+echo 0) Return to main menu
 echo -------------------------
-set /p app_choice="Виберіть програму: "
-if "!app_choice!"=="1" call :action_menu "Amazon" "com.amazon.mShop.android.shopping com.amazon.appmanager" "Видалити" "third_party_menu"
-if "!app_choice!"=="2" call :action_menu "Block Juggle" "com.block.juggle" "Видалити" "third_party_menu"
-if "!app_choice!"=="3" call :action_menu "Booking" "com.booking" "Видалити" "third_party_menu"
-if "!app_choice!"=="4" call :action_menu "Facebook" "com.facebook.services com.facebook.system com.facebook.appmanager com.facebook.katana" "Видалити" "third_party_menu"
-if "!app_choice!"=="5" call :action_menu "Netflix" "com.netflix.mediaclient com.netflix.partner.activation" "Видалити" "third_party_menu"
-if "!app_choice!"=="6" call :action_menu "OneDrive" "com.microsoft.skydrive" "Видалити" "third_party_menu"
-if "!app_choice!"=="7" call :action_menu "Opera" "com.opera.browser com.opera.preinstall" "Видалити" "third_party_menu"
-if "!app_choice!"=="8" call :action_menu "Spotify" "com.spotify.music" "Видалити" "third_party_menu"
-if "!app_choice!"=="9" call :action_menu "Temu" "com.einnovation.temu" "Видалити" "third_party_menu"
-if "!app_choice!"=="10" call :action_menu "WPS Office" "cn.wps.moffice_eng" "Видалити" "third_party_menu"
+set /p "app_choice=Select an app: "
+if "!app_choice!"=="1" call :action_menu "Amazon" "com.amazon.mShop.android.shopping com.amazon.appmanager" "Uninstall" "third_party_menu"
+if "!app_choice!"=="2" call :action_menu "Block Juggle" "com.block.juggle" "Uninstall" "third_party_menu"
+if "!app_choice!"=="3" call :action_menu "Booking" "com.booking" "Uninstall" "third_party_menu"
+if "!app_choice!"=="4" call :action_menu "Facebook" "com.facebook.services com.facebook.system com.facebook.appmanager com.facebook.katana" "Uninstall" "third_party_menu"
+if "!app_choice!"=="5" call :action_menu "Netflix" "com.netflix.mediaclient com.netflix.partner.activation" "Uninstall" "third_party_menu"
+if "!app_choice!"=="6" call :action_menu "OneDrive" "com.microsoft.skydrive" "Uninstall" "third_party_menu"
+if "!app_choice!"=="7" call :action_menu "Opera" "com.opera.browser com.opera.preinstall" "Uninstall" "third_party_menu"
+if "!app_choice!"=="8" call :action_menu "Spotify" "com.spotify.music" "Uninstall" "third_party_menu"
+if "!app_choice!"=="9" call :action_menu "Temu" "com.einnovation.temu" "Uninstall" "third_party_menu"
+if "!app_choice!"=="10" call :action_menu "WPS Office" "cn.wps.moffice_eng" "Uninstall" "third_party_menu"
 if "!app_choice!"=="98" call :selective_uninstall "third_party_menu" "com.amazon.mShop.android.shopping com.amazon.appmanager" "com.block.juggle" "com.booking" "com.facebook.services com.facebook.system com.facebook.appmanager com.facebook.katana" "com.netflix.mediaclient com.netflix.partner.activation" "com.microsoft.skydrive" "com.opera.browser com.opera.preinstall" "com.spotify.music" "com.einnovation.temu" "cn.wps.moffice_eng"
 if "!app_choice!"=="99" call :check_all_status "third_party_menu" "com.amazon.mShop.android.shopping com.amazon.appmanager" "com.block.juggle" "com.booking" "com.facebook.services com.facebook.system com.facebook.appmanager com.facebook.katana" "com.netflix.mediaclient com.netflix.partner.activation" "com.microsoft.skydrive" "com.opera.browser com.opera.preinstall" "com.spotify.music" "com.einnovation.temu" "cn.wps.moffice_eng"
-if "%app_choice%"=="0" goto main_menu
+if "!app_choice!"=="0" goto main_menu
+echo Wrong choice.
+timeout /t 1 >nul
 goto third_party_menu
-
-:check_status
-set "installed=0"
-set "disabled=0"
-set "uninstalled=0"
-set "total=0"
-set "system_exists=0"
-
-for %%p in (%1) do (
-    set /a total+=1
-    for /f %%i in ('adb shell pm list packages ^| findstr "%%p"') do set /a installed+=1
-    if !installed! equ 0 for /f %%i in ('adb shell pm list packages -d ^| findstr "%%p"') do set /a disabled+=1
-    if !installed! equ 0 if !disabled! equ 0 for /f %%i in ('adb shell pm list packages -u ^| findstr "%%p"') do (
-        set /a uninstalled+=1
-        set "system_exists=1"
-    )
-    if !installed! equ 0 if !disabled! equ 0 if !uninstalled! equ 0 set /a uninstalled+=1
-)
-
-if !total! equ !installed! set "%2=[GREEN]Встановлено[NC]"
-if !total! equ !disabled! set "%2=[YELLOW]Відключено[NC]"
-if !total! equ !uninstalled! if !system_exists! equ 1 set "%2=[RED]Видалено[NC]"
-if !total! equ !uninstalled! if !system_exists! equ 0 set "%2=[BLUE]Не встановлено[NC]"
-if !installed! gtr 0 if !total! neq !installed! set "%2=[CYAN]Встановлено частково[NC]"
-
-goto :eof
-
-:disable_package
-set "is_disabled="
-for /f %%i in ('adb shell pm list packages -d ^| findstr "%1"') do set "is_disabled=1"
-if defined is_disabled (
-    echo [YELLOW]Пакет %1 вже відключено.[NC]
-) else (
-    for /f "delims=" %%i in ('adb shell pm disable-user --user 0 %1 2^>^&1') do set "output=%%i"
-    echo !output! | findstr "disabled-user" >nul
-    if !errorlevel! equ 0 (
-        echo [GREEN]Успішно відключено: %1[NC]
-    ) else (
-        echo [RED]Помилка при відключенні %1: !output![NC]
-    )
-)
-goto :eof
-
-:enable_package
-set "is_enabled="
-for /f %%i in ('adb shell pm list packages ^| findstr "%1"') do (
-    for /f %%j in ('adb shell pm list packages -d ^| findstr "%1"') do (set "is_disabled=1") else (set "is_enabled=1")
-)
-if defined is_enabled (
-    echo [YELLOW]Пакет %1 вже увімкнено.[NC]
-) else (
-    for /f "delims=" %%i in ('adb shell pm enable --user 0 %1 2^>^&1') do set "output=%%i"
-    echo !output! | findstr "enabled" >nul
-    if !errorlevel! equ 0 (
-        echo [GREEN]Успішно увімкнено: %1[NC]
-    ) else (
-        echo [RED]Помилка при увімкненні %1: !output![NC]
-    )
-)
-goto :eof
-
-:uninstall_package
-set "is_uninstalled="
-for /f %%i in ('adb shell pm list packages -u ^| findstr "%1"') do (
-    for /f %%j in ('adb shell pm list packages ^| findstr "%1"') do (set "is_installed=1") else (set "is_uninstalled=1")
-)
-if defined is_uninstalled (
-    echo [YELLOW]Пакет %1 вже видалено.[NC]
-) else (
-    for /f "delims=" %%i in ('adb shell pm uninstall --user 0 %1 2^>^&1') do set "output=%%i"
-    if "!output!"=="Success" (
-        echo [GREEN]Успішно видалено: %1[NC]
-    ) else (
-        echo [RED]Помилка при видаленні %1: !output![NC]
-    )
-)
-goto :eof
-
-:install_package
-set "is_installed="
-for /f %%i in ('adb shell pm list packages ^| findstr "%1"') do (
-    for /f %%j in ('adb shell pm list packages -d ^| findstr "%1"') do (set "is_disabled=1") else (set "is_installed=1")
-)
-if defined is_installed (
-    echo [YELLOW]Пакет %1 вже встановлено.[NC]
-) else (
-    for /f "delims=" %%i in ('adb shell pm install-existing --user 0 %1 2^>^&1') do set "output=%%i"
-    if "!output!"=="" (
-        echo [GREEN]Успішно відновлено: %1[NC]
-    ) else if "!output!"=="Failure [INSTALL_FAILED_INVALID_URI]" (
-        echo [YELLOW]Пакет %1 не знайдено в системі для відновлення.[NC]
-    ) else (
-        echo [RED]Помилка при відновленні %1: !output![NC]
-    )
-)
-goto :eof
 
 :action_menu
 cls
-echo [GREEN]Дія для %1 ("%2")[NC]
+set "name=%~1"
+set "packages=%~2"
+set "recommendation=%~3"
+set "return_menu=%~4"
+echo Action for %name%
 
 set "installed_pkgs="
 set "disabled_pkgs="
@@ -362,194 +295,356 @@ set "uninstalled_pkgs="
 set "not_installed_pkgs="
 set "status_output="
 
-for %%p in (%2) do (
-    set "pkg_status="
-    for /f %%i in ('adb shell pm list packages ^| findstr "%%p"') do set "pkg_status=installed"
-    if not defined pkg_status for /f %%i in ('adb shell pm list packages -d ^| findstr "%%p"') do set "pkg_status=disabled"
-    if not defined pkg_status for /f %%i in ('adb shell pm list packages -u ^| findstr "%%p"') do (
-        for /f %%j in ('adb shell pm list packages ^| findstr "%%p"') do () else (set "pkg_status=uninstalled")
+for %%p in (%packages%) do (
+    !ADB! shell pm list packages -u | find "%%p" >nul
+    if !ERRORLEVEL! equ 0 (
+        !ADB! shell pm list packages -d | find "%%p" >nul
+        if !ERRORLEVEL! equ 0 (
+            set "disabled_pkgs=!disabled_pkgs! %%p"
+        ) else (
+            !ADB! shell pm list packages | find "%%p" >nul
+            if !ERRORLEVEL! equ 0 (
+                set "installed_pkgs=!installed_pkgs! %%p"
+            ) else (
+                set "uninstalled_pkgs=!uninstalled_pkgs! %%p"
+            )
+        )
+    ) else (
+        set "not_installed_pkgs=!not_installed_pkgs! %%p"
     )
-    if not defined pkg_status set "pkg_status=not_installed"
-    if "!pkg_status!"=="installed" set "installed_pkgs=!installed_pkgs! %%p"
-    if "!pkg_status!"=="disabled" set "disabled_pkgs=!disabled_pkgs! %%p"
-    if "!pkg_status!"=="uninstalled" set "uninstalled_pkgs=!uninstalled_pkgs! %%p"
-    if "!pkg_status!"=="not_installed" set "not_installed_pkgs=!not_installed_pkgs! %%p"
 )
 
-if defined installed_pkgs (
-    set "status_output=[GREEN]Встановлено[NC] (!installed_pkgs:~1!)"
-)
-if defined disabled_pkgs (
-    if defined status_output set "status_output=!status_output!, "
-    set "status_output=!status_output![YELLOW]Відключено[NC] (!disabled_pkgs:~1!)"
-)
-if defined uninstalled_pkgs (
-    if defined status_output set "status_output=!status_output!, "
-    set "status_output=!status_output![RED]Видалено[NC] (!uninstalled_pkgs:~1!)"
-)
-if defined not_installed_pkgs (
-    if defined status_output set "status_output=!status_output!, "
-    set "status_output=!status_output![BLUE]Не встановлено[NC] (!not_installed_pkgs:~1!)"
-)
+if defined installed_pkgs set "status_output=Installed (!installed_pkgs:~1!)"
+if defined disabled_pkgs set "status_output=!status_output!, Disabled (!disabled_pkgs:~1!)"
+if defined uninstalled_pkgs set "status_output=!status_output!, Uninstalled (!uninstalled_pkgs:~1!)"
+if defined not_installed_pkgs set "status_output=!status_output!, Not installed (!not_installed_pkgs:~1!)"
 
-echo Статус: !status_output!
-echo Рекомендація: %3
-echo 1) Видалити
-echo 2) Відключити
-echo 3) Відновити
-echo 4) Увімкнути
-echo 0) Повернутися
+echo Status: !status_output!
+echo Recommendation: %recommendation%
+echo 1) Uninstall
+echo 2) Disable
+echo 3) Restore
+echo 4) Enable
+echo 0) Return
 echo -------------------------
-set /p action="Виберіть дію: "
+set /p "action=Select an action: "
+if "!action!"=="1" (
+    for %%p in (%packages%) do call :uninstall_package "%%p"
+)
+if "!action!"=="2" (
+    for %%p in (%packages%) do call :disable_package "%%p"
+)
+if "!action!"=="3" (
+    for %%p in (%packages%) do call :install_package "%%p"
+)
+if "!action!"=="4" (
+    for %%p in (%packages%) do call :enable_package "%%p"
+)
+if "!action!"=="0" goto :%return_menu%
+echo Wrong action.
+set /p "=Press Enter to continue..." <nul
+set /p continue=
+goto :%return_menu%
 
-if "!action!"=="1" for %%p in (%2) do call :uninstall_package %%p
-if "!action!"=="2" for %%p in (%2) do call :disable_package %%p
-if "!action!"=="3" for %%p in (%2) do call :install_package %%p
-if "!action!"=="4" for %%p in (%2) do call :enable_package %%p
-if "!action!"=="0" goto :%4
+:uninstall_package
+set "package=%~1"
+!ADB! shell pm list packages -u | find "%package%" >nul
+if !ERRORLEVEL! equ 0 (
+    !ADB! shell pm list packages | find "%package%" >nul
+    if !ERRORLEVEL! neq 0 (
+        echo The package %package% has already been removed.
+    ) else (
+        for /f %%i in ('!ADB! shell pm uninstall --user 0 %package%') do set "output=%%i"
+        if "!output!"=="Success" (
+            echo Successfully uninstalled: %package%
+        ) else (
+            echo Failed to remove %package%: !output!
+        )
+    )
+)
+goto :eof
 
-pause
-goto :%4
+:disable_package
+set "package=%~1"
+!ADB! shell pm list packages -d | find "%package%" >nul
+if !ERRORLEVEL! equ 0 (
+    echo Package %package% is already disabled.
+) else (
+    for /f "delims=" %%i in ('!ADB! shell pm disable-user --user 0 %package%') do set "output=%%i"
+    echo !output! | find "disabled-user" >nul
+    if !ERRORLEVEL! equ 0 (
+        echo Successfully disabled: %package%
+    ) else (
+        echo Failed to disable %package%: !output!
+    )
+)
+goto :eof
+
+:install_package
+set "package=%~1"
+!ADB! shell pm list packages | find "%package%" >nul
+if !ERRORLEVEL! equ 0 (
+    !ADB! shell pm list packages -d | find "%package%" >nul
+    if !ERRORLEVEL! neq 0 (
+        echo The package %package% is already installed.
+    ) else (
+        goto install_existing
+    )
+) else (
+    :install_existing
+    for /f "delims=" %%i in ('!ADB! shell pm install-existing --user 0 %package% 2^>^&1') do set "output=%%i"
+    echo !output! | find "installed" >nul
+    if !ERRORLEVEL! equ 0 (
+        echo Successfully restored: %package%
+    ) else if "!output!"=="" (
+        echo Successfully restored: %package%
+    ) else (
+        echo !output! | find "doesn't exist" >nul
+        if !ERRORLEVEL! equ 0 (
+            echo Package %package% was not found on the system to restore.
+        ) else (
+            echo Error restoring %package%: !output!
+        )
+    )
+)
+goto :eof
+
+:enable_package
+set "package=%~1"
+!ADB! shell pm list packages | find "%package%" >nul
+if !ERRORLEVEL! equ 0 (
+    !ADB! shell pm list packages -d | find "%package%" >nul
+    if !ERRORLEVEL! neq 0 (
+        echo Package %package% is already enabled.
+    ) else (
+        for /f %%i in ('!ADB! shell pm enable --user 0 %package%') do set "output=%%i"
+        echo !output! | find "enabled" >nul
+        if !ERRORLEVEL! equ 0 (
+            echo Successfully enabled: %package%
+        ) else (
+            echo Failed to enable %package%: !output!
+        )
+    )
+)
+goto :eof
 
 :selective_uninstall
-cls
-echo [GREEN]=== Вибіркове видалення ===[NC]
-echo Введіть номери програм через пробіл (наприклад, '1 5 6').
-echo Діапазон: 1–%argc%
-echo -------------------------
-set /p selection="Виберіть програми: "
-set "argc=0"
-for %%i in (%*) do set /a argc+=1
-set "argc=!argc!"
+set "return_menu=%~1"
+shift
 set "index=0"
-for %%p in (%*) do (
-    set /a index+=1
-    if !index! gtr 1 (
-        set "pkg[!index!-1]=%%p"
-    )
-)
+REM Зберігаємо всі пакети в змінні pkg_0, pkg_1, ...
+:store_packages
+if "%~1"=="" goto store_done
+set "pkg_!index!=%~1"
+set /a index+=1
+shift
+goto store_packages
+:store_done
+set "max_index=!index!"
+set /a max_index-=1
+
+cls
+echo === Uninstall selectively ===
+echo Enter the program numbers separated by a space (for example, '1 5 6').
+echo Range: 1-!max_index!
+echo -------------------------
+set /p "selection=Select programs: "
 
 for %%n in (!selection!) do (
-    set "valid=1"
-    if %%n lss 1 set "valid=0"
-    if %%n gtr !argc! set "valid=0"
-    if !valid! equ 1 (
-        for %%p in (!pkg[%%n]!) do call :uninstall_package %%p
-    ) else (
-        echo [RED]Невірний номер: %%n[NC]
+    set "valid=0"
+    if %%n geq 1 if %%n leq !max_index! (
+        set "valid=1"
+        set /a "idx=%%n-1"
+        call set "package=%%pkg_!idx!%%"
+        for %%p in (!package!) do call :uninstall_package "%%p"
+    )
+    if !valid! equ 0 (
+        echo Wrong number: %%n
     )
 )
 
-pause
-goto :%1
+set /p "=Press Enter to continue..." <nul
+set /p continue=
+goto :%return_menu%
 
 :check_all_status
+set "return_menu=%~1"
+shift
 cls
-echo [GREEN]=== Перевірка статусу всіх програм ===[NC]
+echo === Check status of apps ===
 set "index=0"
-set "argc=0"
-for %%i in (%*) do set /a argc+=1
-set "argc=!argc!"
 for %%p in (%*) do (
     set /a index+=1
-    if !index! gtr 1 (
-        set "pkg[!index!-1]=%%p"
-        set "name="
-        if "%1"=="miui_menu" (
-            if !index! equ 2 set "name=GetApps"
-            if !index! equ 3 set "name=Mi Browser"
-            if !index! equ 4 set "name=Mi Home"
-            if !index! equ 5 set "name=Mi Mover"
-            if !index! equ 6 set "name=Mi Music"
-            if !index! equ 7 set "name=Mi Video"
-            if !index! equ 8 set "name=POCO Community"
-            if !index! equ 9 set "name=POCO Store"
-            if !index! equ 10 set "name=Ігри Xiaomi"
-            if !index! equ 11 set "name=Карусель шпалер"
-            if !index! equ 12 set "name=Стрічка віджетів MinusScreen"
-            if !index! equ 13 set "name=ShareMe"
-            if !index! equ 14 set "name=Завантаження"
-            if !index! equ 15 set "name=Компас"
-            if !index! equ 16 set "name=Очищувач"
-            if !index! equ 17 set "name=Сканер QR"
-            if !index! equ 18 set "name=Теми"
-        )
-        if "%1"=="utilities_menu" (
-            if !index! equ 2 set "name=Bluetooth MIDI"
-            if !index! equ 3 set "name=Device Health Services"
-            if !index! equ 4 set "name=MMS служба"
-            if !index! equ 5 set "name=Qualcomm Miracast"
-            if !index! equ 6 set "name=Qualcomm RCS повідомлення"
-            if !index! equ 7 set "name=Quick Apps"
-            if !index! equ 8 set "name=TalkBack"
-            if !index! equ 9 set "name=Китайські віртуальні картки"
-            if !index! equ 10 set "name=Китайський варіант Wi-Fi"
-            if !index! equ 11 set "name=Аналітика MIUI"
-            if !index! equ 12 set "name=Голосова активація"
-            if !index! equ 13 set "name=Китайський оприділяч номера"
-            if !index! equ 14 set "name=Звіти про помилки та зворотній зв'язок"
-            if !index! equ 15 set "name=Ініціалізація Google"
-            if !index! equ 16 set "name=Китайський Mi Pay"
-            if !index! equ 17 set "name=Китайський акційний сервіс"
-            if !index! equ 18 set "name=Китайський сервіс підтвердження платежів"
-            if !index! equ 19 set "name=Логи батареї Catchlog"
-            if !index! equ 20 set "name=Меню SIM-карти"
-            if !index! equ 21 set "name=Навігаційні жести"
-            if !index! equ 22 set "name=Оптимізація MIUI Daemon"
-            if !index! equ 23 set "name=Оптимізація процесів"
-            if !index! equ 24 set "name=Очікування OK Google"
-            if !index! equ 25 set "name=Реклама MIUI"
-            if !index! equ 26 set "name=Рекламні закладки"
-            if !index! equ 27 set "name=Рекомендації друку Google"
-            if !index! equ 28 set "name=Резервна копія у хмарі"
-            if !index! equ 29 set "name=Резервне копіювання шпалер"
-            if !index! equ 30 set "name=Сенсорний помічник"
-            if !index! equ 31 set "name=Служба друку"
-            if !index! equ 32 set "name=Стрічка віджетів App vault"
-            if !index! equ 33 set "name=Трасування системи"
-            if !index! equ 34 set "name=Шрифт Noto Serif"
-        )
-        if "%1"=="google_menu" (
-            if !index! equ 2 set "name=Android Auto"
-            if !index! equ 3 set "name=Chrome"
-            if !index! equ 4 set "name=Gmail"
-            if !index! equ 5 set "name=Google Assistant"
-            if !index! equ 6 set "name=Google Duo"
-            if !index! equ 7 set "name=Google Files"
-            if !index! equ 8 set "name=Google Maps"
-            if !index! equ 9 set "name=Google Music"
-            if !index! equ 10 set "name=Google One"
-            if !index! equ 11 set "name=Google Drive"
-            if !index! equ 12 set "name=Google Search"
-            if !index! equ 13 set "name=Google Videos"
-            if !index! equ 14 set "name=Health Connect"
-            if !index! equ 15 set "name=Safety Hub"
-            if !index! equ 16 set "name=YouTube"
-            if !index! equ 17 set "name=YouTube Music"
-            if !index! equ 18 set "name=Цифрове благополуччя"
-        )
-        if "%1"=="third_party_menu" (
-            if !index! equ 2 set "name=Amazon"
-            if !index! equ 3 set "name=Block Juggle"
-            if !index! equ 4 set "name=Booking"
-            if !index! equ 5 set "name=Facebook"
-            if !index! equ 6 set "name=Netflix"
-            if !index! equ 7 set "name=OneDrive"
-            if !index! equ 8 set "name=Opera"
-            if !index! equ 9 set "name=Spotify"
-            if !index! equ 10 set "name=Temu"
-            if !index! equ 11 set "name=WPS Office"
-        )
-        set "status="
-        call :check_status "%%p" status
-        echo !index!-1^) !name! ^| Статус: !status!
+    set "pkg_group=%%p"
+    call :check_package_status "!pkg_group!" status
+    if "!return_menu!"=="miui_menu" (
+        if !index! equ 1 echo !index!) Cleaner ^| !status!
+        if !index! equ 2 echo !index!) Compass ^| !status!
+        if !index! equ 3 echo !index!) GetApps ^| !status!
+        if !index! equ 4 echo !index!) Mi Browser ^| !status!
+        if !index! equ 5 echo !index!) Mi Home ^| !status!
+        if !index! equ 6 echo !index!) Mi Mover ^| !status!
+        if !index! equ 7 echo !index!) Mi Music ^| !status!
+        if !index! equ 8 echo !index!) Mi Video ^| !status!
+        if !index! equ 9 echo !index!) MinusScreen Widget ^| !status!
+        if !index! equ 10 echo !index!) POCO Store ^& Community ^| !status!
+        if !index! equ 11 echo !index!) QR Scanner ^| !status!
+        if !index! equ 12 echo !index!) ShareMe ^| !status!
+        if !index! equ 13 echo !index!) Downloads ^| !status!
+        if !index! equ 14 echo !index!) Themes ^| !status!
+        if !index! equ 15 echo !index!) Wallpaper Carousel ^| !status!
+        if !index! equ 16 echo !index!) Xiaomi Games ^| !status!
+    ) else if "!return_menu!"=="utilities_menu" (
+        if !index! equ 1 echo !index!) Ad Bookmarks ^| !status!
+        if !index! equ 2 echo !index!) Battery Logs Catchlog ^| !status!
+        if !index! equ 3 echo !index!) Bluetooth MIDI ^| !status!
+        if !index! equ 4 echo !index!) Cloud Backup ^| !status!
+        if !index! equ 5 echo !index!) Google One Time Initialization ^| !status!
+        if !index! equ 6 echo !index!) Google Print Recommendations ^| !status!
+        if !index! equ 7 echo !index!) MIUI Ads ^| !status!
+        if !index! equ 8 echo !index!) MIUI Analytics ^| !status!
+        if !index! equ 9 echo !index!) MIUI Daemon ^| !status!
+        if !index! equ 10 echo !index!) MMS Service ^| !status!
+        if !index! equ 11 echo !index!) Navigation Gestures ^| !status!
+        if !index! equ 12 echo !index!) Noto Serif Font ^| !status!
+        if !index! equ 13 echo !index!) OK Google Detection ^| !status!
+        if !index! equ 14 echo !index!) Print Service ^| !status!
+        if !index! equ 15 echo !index!) Quick Apps ^| !status!
+        if !index! equ 16 echo !index!) SIM Card Menu ^| !status!
+        if !index! equ 17 echo !index!) System Tracing ^| !status!
+        if !index! equ 18 echo !index!) TalkBack ^| !status!
+        if !index! equ 19 echo !index!) Touch Assistant ^| !status!
+        if !index! equ 20 echo !index!) Voice Activation ^| !status!
+        if !index! equ 21 echo !index!) Wallpaper Backup ^| !status!
+        if !index! equ 22 echo !index!) App Vault Widget ^| !status!
+        if !index! equ 23 echo !index!) Bug Reports ^& Feedback ^| !status!
+        if !index! equ 24 echo !index!) Chinese Caller ID ^| !status!
+        if !index! equ 25 echo !index!) Chinese Mi Pay ^| !status!
+        if !index! equ 26 echo !index!) Chinese Payment Verification Service ^| !status!
+        if !index! equ 27 echo !index!) Chinese Promo Service ^| !status!
+        if !index! equ 28 echo !index!) Chinese Virtual Cards ^| !status!
+        if !index! equ 29 echo !index!) Chinese Wi-Fi Variant ^| !status!
+        if !index! equ 30 echo !index!) Device Health Services ^| !status!
+        if !index! equ 31 echo !index!) Interconnectivity ^& Services ^| !status!
+        if !index! equ 32 echo !index!) Joyose ^| !status!
+        if !index! equ 33 echo !index!) Qualcomm Miracast ^| !status!
+        if !index! equ 34 echo !index!) Qualcomm RCS ^| !status!
+    ) else if "!return_menu!"=="google_menu" (
+        if !index! equ 1 echo !index!) Android Auto ^| !status!
+        if !index! equ 2 echo !index!) Chrome ^| !status!
+        if !index! equ 3 echo !index!) Contacts ^| !status!
+        if !index! equ 4 echo !index!) Dialer ^| !status!
+        if !index! equ 5 echo !index!) Digital Wellbeing ^| !status!
+        if !index! equ 6 echo !index!) Drive ^| !status!
+        if !index! equ 7 echo !index!) Files ^| !status!
+        if !index! equ 8 echo !index!) Gmail ^| !status!
+        if !index! equ 9 echo !index!) Google Assistant ^| !status!
+        if !index! equ 10 echo !index!) Google Duo ^| !status!
+        if !index! equ 11 echo !index!) Google Music ^| !status!
+        if !index! equ 12 echo !index!) Google One ^| !status!
+        if !index! equ 13 echo !index!) Google Search ^| !status!
+        if !index! equ 14 echo !index!) Google Videos ^| !status!
+        if !index! equ 15 echo !index!) Health Connect ^| !status!
+        if !index! equ 16 echo !index!) Maps ^| !status!
+        if !index! equ 17 echo !index!) Messages ^| !status!
+        if !index! equ 18 echo !index!) Safety Hub ^| !status!
+        if !index! equ 19 echo !index!) YouTube ^| !status!
+        if !index! equ 20 echo !index!) YouTube Music ^| !status!
+    ) else if "!return_menu!"=="third_party_menu" (
+        if !index! equ 1 echo !index!) Amazon ^| !status!
+        if !index! equ 2 echo !index!) Block Juggle ^| !status!
+        if !index! equ 3 echo !index!) Booking ^| !status!
+        if !index! equ 4 echo !index!) Facebook ^| !status!
+        if !index! equ 5 echo !index!) Netflix ^| !status!
+        if !index! equ 6 echo !index!) OneDrive ^| !status!
+        if !index! equ 7 echo !index!) Opera ^| !status!
+        if !index! equ 8 echo !index!) Spotify ^| !status!
+        if !index! equ 9 echo !index!) Temu ^| !status!
+        if !index! equ 10 echo !index!) WPS Office ^| !status!
     )
 )
 echo -------------------------
-pause
-goto :%1
+set /p "=Press Enter to continue..." <nul
+set /p continue=
+goto :%return_menu%
 
-:exit
-adb kill-server >nul 2>&1
-echo [GREEN]До зустрічі![NC]
-exit
+:check_package_status
+set "packages=%~1"
+set "installed=0"
+set "disabled=0"
+set "uninstalled=0"
+set "total=0"
+set "system_exists=0"
+
+for %%p in (%packages%) do (
+    set /a total+=1
+    !ADB! shell pm list packages -u | find "%%p" >nul
+    if !ERRORLEVEL! equ 0 (
+        set system_exists=1
+        !ADB! shell pm list packages -d | find "%%p" >nul
+        if !ERRORLEVEL! equ 0 (
+            set /a disabled+=1
+        ) else (
+            !ADB! shell pm list packages | find "%%p" >nul
+            if !ERRORLEVEL! equ 0 (
+                set /a installed+=1
+            ) else (
+                set /a uninstalled+=1
+            )
+        )
+    ) else (
+        set /a uninstalled+=1
+    )
+)
+
+if !total! equ !installed! set "%2=Installed"
+if !total! equ !disabled! set "%2=Disabled"
+if !total! equ !uninstalled! if !system_exists! equ 1 set "%2=Uninstalled"
+if !total! equ !uninstalled! if !system_exists! equ 0 set "%2=Not installed"
+if !installed! gtr 0 if !total! neq !installed! set "%2=Partially installed"
+goto :eof
+
+:restore_dialer_messages
+cls
+echo === Restoring Xiaomi Dialer ^& Messages ===
+echo Checking Xiaomi Dialer (com.android.contacts) in system...
+for /f "delims=" %%i in ('!ADB! shell pm install-existing --user 0 com.android.contacts 2^>^&1') do set "dialer_output=%%i"
+echo !dialer_output! | find "installed" >nul
+if !ERRORLEVEL! equ 0 (
+    echo Xiaomi Dialer restored successfully from system!
+) else if "!dialer_output!"=="" (
+    echo Xiaomi Dialer restored successfully from system!
+) else (
+    echo !dialer_output! | find "doesn't exist" >nul
+    if !ERRORLEVEL! equ 0 (
+        echo Xiaomi Dialer not found in system.
+    ) else (
+        echo Error restoring Xiaomi Dialer from system: !dialer_output!
+    )
+)
+
+echo Checking Xiaomi Messages (com.android.mms) in system...
+for /f "delims=" %%i in ('!ADB! shell pm install-existing --user 0 com.android.mms 2^>^&1') do set "messages_output=%%i"
+echo !messages_output! | find "installed" >nul
+if !ERRORLEVEL! equ 0 (
+    echo Xiaomi Messages restored successfully from system!
+) else if "!messages_output!"=="" (
+    echo Xiaomi Messages restored successfully from system!
+) else (
+    echo !messages_output! | find "doesn't exist" >nul
+    if !ERRORLEVEL! equ 0 (
+        echo Xiaomi Messages not found in system.
+    ) else (
+        echo Error restoring Xiaomi Messages from system: !messages_output!
+    )
+)
+set /p "=Press Enter to continue..." <nul
+set /p continue=
+goto main_menu
+
+call :check_adb
+!ADB! kill-server >nul 2>&1
+!ADB! start-server >nul 2>&1 || (echo Failed to start ADB server. & exit /b 1)
+call :check_device 3
+echo MIUI/HyperOS bloatware app removal script by Quinsaiz
+goto main_menu

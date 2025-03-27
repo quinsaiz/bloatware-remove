@@ -12,64 +12,66 @@
     <a href="#english">English</a> | <a href="#українська">Українська</a>
 </p>
 
-## English  
+## English
 
-### Description  
-This tool allows you to quickly and conveniently remove or disable unnecessary system apps, utilities, Google apps, and third-party apps on devices running MIUI or HyperOS. The scripts are written in Bash (Linux) and Batch (Windows), making them versatile for different systems. Everything is alphabetically sorted, with clear menus and app statuses.  
+### Description
+This tool allows you to quickly and conveniently remove or disable unnecessary system apps, utilities, Google apps, and third-party apps on devices running MIUI or HyperOS. The scripts are written in Bash (Linux) and Batch (Windows), making them versatile for different systems. Everything is alphabetically sorted, with clear menus and app statuses.
 
-#### Key Features:  
-- 📱 Remove MIUI/HyperOS system apps (e.g., GetApps, Mi Browser).  
-- ⚙️ Disable critical utilities (e.g., Quick Apps, Touch Assistant).  
-- 🌐 Manage Google apps (YouTube, Gmail, etc.).  
-- 🎮 Remove third-party apps (Netflix, Facebook, etc.).  
-- ✅ Check app statuses via ADB.  
+#### Key Features:
+- 📱 Remove MIUI/HyperOS system apps (e.g., GetApps, Mi Browser).
+- ⚙️ Disable critical utilities (e.g., Quick Apps, Touch Assistant).
+- 🌐 Manage Google apps (YouTube, Gmail, etc.).
+- 🎮 Remove third-party apps (Netflix, Facebook, etc.).
+- ✅ Check app statuses via ADB.
 
-### How to Use  
+### How to Use
 
-#### Prerequisites  
-1. **ADB (Android Debug Bridge)**: Download from the [official Android site](https://developer.android.com/tools/releases/platform-tools).  
-2. **USB Debugging**: Enable "USB Debugging" in Developer Options on your device.  
-3. **Connection**: Connect your device to your computer via USB.  
+#### Prerequisites
+1. **ADB (Android Debug Bridge):** Download from the [official Android site](https://developer.android.com/tools/releases/platform-tools).
+2. **USB Debugging:** Enable "USB Debugging" in Developer Options on your device.
+3. **Connection:** Connect your device to your computer via USB.
 
-#### Instructions for Linux  
-1. **Download the script**:  
+#### Instructions for Linux
+
+1. **Install android-tools or Move files from the platform-tools folder to the script folder.**
+
+2. **Download the script**:
     ```bash  
-    git clone https://github.com/quinsaiz/miui-clean.git  
+    git clone https://github.com/quinsaiz/miui-clean.git
     cd miui-clean
     ```
-2. **Make it executable**:
+3. **Make it executable**:
     ```bash
-    chmod +x script.sh  
+    chmod +x script.sh
     ```
-3. **Run the script**:
+4. **Run the script**:
     ```bash
     ./script.sh
     ```
-**Select an option:** Use numbers to navigate the menu (e.g., 1 for MIUI apps).
-
-**Actions:** Choose "Remove" or "Disable" for each app.
 
 #### Instructions for Windows
 
-1.  **Download the script:**
+1. **Install ADB or Move files from the platform-tools folder to the script folder.**
+
+2.  **Download the script:**
 Download the ZIP from GitHub and extract it.
 Or run:
     ```cmd
-    git clone https://github.com/quinsaiz/miui-clean.git  
+    git clone https://github.com/quinsaiz/miui-clean.git
     cd miui-clean 
     ```
 
-2.  **Open CMD: Navigate to the script folder in Command Prompt**
+3.  **Open CMD: Navigate to the script folder in Command Prompt**
     ```cmd
     cd path/to/miui-clean
-    ```  
-3.  **Run the script:**
+    ```
+4.  **Run the script:**
     ```cmd
     script.bat
     ```
-**Select an option:** Enter the menu number (e.g., 1 for MIUI apps).
+**Select an option:** Use numbers to navigate through the menu (for example, 1 for MIUI/HyperOS apps).
 
-**Actions:** Choose "Remove" or "Disable".
+**Actions:** Select "Uninstall", "Restore", "Disable", "Enable" for each program.
 
 ### Important Notes
 
@@ -79,12 +81,12 @@ Or run:
 
 ### Project Structure
 ```text
-miui-clean/  
+miui-clean/
 │  
-├── script.sh   # Bash script for Linux  
+├── script.sh   # Bash script for Linux
 ├── script.bat  # Batch script for Windows
-├── LICENSE     # MIT License  
-└── README.md   # This file  
+├── LICENSE     # MIT License
+└── README.md   # This file
 ```
 ### Author
 
@@ -108,52 +110,53 @@ If you like this project, please give it a star on GitHub!
 Цей інструмент дозволяє швидко та зручно видаляти або відключати непотрібні системні програми, утиліти, програми Google та сторонні додатки на пристроях з MIUI або HyperOS. Скрипти написані для Bash (Linux) та Batch (Windows), що робить їх універсальними для різних систем. Усе відсортовано за алфавітом, з чіткими меню та статусами програм.
 #### Основні можливості:
 
-    📱 Видалення системних програм MIUI/HyperOS (наприклад, GetApps, Mi Browser).
-    ⚙️ Відключення критичних утиліт (наприклад, Quick Apps, Сенсорний помічник).
-    🌐 Управління програмами Google (YouTube, Gmail тощо).
-    🎮 Видалення сторонніх додатків (Netflix, Facebook тощо).
-    ✅ Перевірка статусу програм через ADB.
+ - 📱 Видалення системних програм MIUI/HyperOS (наприклад, GetApps, Mi Browser).
+ - ⚙️ Відключення критичних утиліт (наприклад, Quick Apps, Сенсорний помічник).
+ - 🌐 Управління програмами Google (YouTube, Gmail тощо).
+ - 🎮 Видалення сторонніх додатків (Netflix, Facebook тощо).
+ - ✅ Перевірка статусу програм через ADB.
 
 ### Як використовувати
 #### Передумови
 
-    ADB (Android Debug Bridge): Завантажте з офіційного сайту Android.
-    USB-налагодження: Увімкніть "Налагодження по USB" у налаштуваннях розробника на вашому пристрої.
-    Підключення: Підключіть пристрій до комп’ютера через USB.
+1. **ADB (Android Debug Bridge):** Завантажте з [офіційного сайту Android](https://developer.android.com/tools/releases/platform-tools).
+2. **USB-налагодження:** Увімкніть "Налагодження по USB" у налаштуваннях розробника на вашому пристрої.
+3. **Підключення:** Підключіть пристрій до комп’ютера через USB.
 
 #### Інструкція для Linux
 
-1. **Завантажте скрипт:**
+1. **Встановіть android-tools або перемістіть файли з папки platform-tools до папки script.**.
+
+2. **Завантажте скрипт:**
     ```bash
-    git clone https://github.com/quinsaiz/miui-clean.git  
+    git clone https://github.com/quinsaiz/miui-clean.git
     cd miui-clean
     ```
-2. **Дайте права на виконання:**
+3. **Дайте права на виконання:**
     ```bash
     chmod +x script.sh
     ```
-3. **Запустіть скрипт:**
+4. **Запустіть скрипт:**
     ```bash
-    ./script.sh  
+    ./script.sh
     ```
-**Виберіть опцію:** Використовуйте цифри для навігації по меню (наприклад, 1 для MIUI-програм).
-
-**Дії:** Виберіть "Видалити", "Відновити", "Відключити", "Включити" для кожної програми.
 
 #### Інструкція для Windows
+
+1. **Встановіть ADB або перемістіть файли з папки platform-tools до папки script.**.
 
 1. **Завантажте скрипт:**
 Завантажте ZIP-архів з GitHub та розпакуйте його.
 Або виконайте:
     ```cmd
-    git clone https://github.com/quinsaiz/miui-clean.git  
+    git clone https://github.com/quinsaiz/miui-clean.git
     cd miui-clean
     ```
 2. **Відкрийте CMD:** 
 Перейдіть до папки зі скриптом у командному рядку.
 
     ```cmd
-    cd шлях/до/miui-clean  
+    cd шлях/до/miui-clean
     ```
 3. **Запустіть скрипт:**
 
@@ -161,9 +164,9 @@ If you like this project, please give it a star on GitHub!
     script.bat
     ```
 
-**Виберіть опцію:** Введіть номер меню (наприклад, 1 для MIUI-програм).
+**Виберіть опцію:** Використовуйте цифри для навігації по меню (наприклад, 1 для MIUI-програм).
 
-**Дії:** Виберіть "Видалити" або "Відключити".
+**Дії:** Виберіть "Видалити", "Відновити", "Відключити", "Включити" для кожної програми.
 
 ### Важливі примітки
 
@@ -173,12 +176,12 @@ If you like this project, please give it a star on GitHub!
 
 ### Структура проєкту
 ```text
-miui-clean/  
-│  
-├── script.sh   # Bash script for Linux  
+miui-clean/
+│
+├── script.sh   # Bash script for Linux
 ├── script.bat  # Batch script for Windows
-├── LICENSE     # MIT License  
-└── README.md   # This file  
+├── LICENSE     # MIT License
+└── README.md   # This file
 ```
 ### Автор
 
