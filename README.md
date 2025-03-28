@@ -15,7 +15,7 @@
 ## English
 
 ### Description
-This tool allows you to quickly and conveniently remove or disable unnecessary system apps, utilities, Google apps, and third-party apps on devices running MIUI or HyperOS. The scripts are written in Bash (Linux) and Batch (Windows), making them versatile for different systems. Everything is alphabetically sorted, with clear menus and app statuses.
+This tool allows you to quickly and conveniently remove or disable unnecessary system apps, utilities, Google apps, and third-party apps on devices running MIUI or HyperOS. The scripts are written in Bash (Linux) and PowerShell (Windows), making them versatile for different systems. Everything is alphabetically sorted, with clear menus and app statuses.
 
 #### Key Features:
 - 📱 Remove MIUI/HyperOS system apps (e.g., GetApps, Mi Browser).
@@ -96,7 +96,7 @@ This tool allows you to quickly and conveniently remove or disable unnecessary s
 bloatware-remove/
 │  
 ├── script.sh   # Bash script for Linux
-├── script.bat  # Batch script for Windows
+├── script.ps1  # PowerShell script for Windows
 ├── LICENSE     # MIT License
 └── README.md   # This file
 ```
@@ -119,7 +119,7 @@ If you like this project, please give it a star on GitHub!
 
 ### Опис
 
-Цей інструмент дозволяє швидко та зручно видаляти або відключати непотрібні системні програми, утиліти, програми Google та сторонні додатки на пристроях з MIUI або HyperOS. Скрипти написані для Bash (Linux) та Batch (Windows), що робить їх універсальними для різних систем. Усе відсортовано за алфавітом, з чіткими меню та статусами програм.
+Цей інструмент дозволяє швидко та зручно видаляти або відключати непотрібні системні програми, утиліти, програми Google та сторонні додатки на пристроях з MIUI або HyperOS. Скрипти написані для Bash (Linux) та PowerShell (Windows), що робить їх універсальними для різних систем. Усе відсортовано за алфавітом, з чіткими меню та статусами програм.
 #### Основні можливості:
 
  - 📱 Видалення системних програм MIUI/HyperOS (наприклад, GetApps, Mi Browser).
@@ -202,7 +202,7 @@ If you like this project, please give it a star on GitHub!
 bloatware-remove/
 │
 ├── script.sh   # Bash script for Linux
-├── script.bat  # Batch script for Windows
+├── script.ps1  # PowerShell script for Windows
 ├── LICENSE     # MIT License
 └── README.md   # This file
 ```
