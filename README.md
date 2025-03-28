@@ -1,9 +1,9 @@
 <h1 align="center">Bloatware App Removal Tools</h1>
 
 <p align="center">
-    <img src="https://img.shields.io/badge/MIUI-HyperOS-blue?style=for-the-badge&logo=android" alt="MIUI/HyperOS"/>
+    <img src="https://img.shields.io/badge/Android-gray?style=for-the-badge&logo=android" alt="Android"/>
     <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License"/>
-    <img src="https://img.shields.io/badge/Version-1.01-orange?style=for-the-badge" alt="Version"/>
+    <img src="https://img.shields.io/badge/Version-1.02-orange?style=for-the-badge" alt="Version"/>
 </p>
 
 <h3 align="center">Choose Language/Оберіть мову</h3>
@@ -27,47 +27,60 @@ This tool allows you to quickly and conveniently remove or disable unnecessary s
 ### How to Use
 
 #### Prerequisites
-1. **ADB (Android Debug Bridge):** Download from the [official Android site](https://developer.android.com/tools/releases/platform-tools).
+1. **ADB (Android Debug Bridge):** Download platform-tools from the [official Android site](https://developer.android.com/tools/releases/platform-tools).
 2. **USB Debugging:** Enable "USB Debugging" in Developer Options on your device.
 3. **Connection:** Connect your device to your computer via USB.
 
-#### Instructions for Linux
+### Instruction for Linux
 
-1. **Install android-tools or Move files from the platform-tools folder to the script folder.**
+#### Create a work folder
 
-2. **Download the script**:
-    ```bash  
-    git clone https://github.com/quinsaiz/bloatware-remove.git
-    cd bloatware-remove
+* Unzip the archive from platform-tools or install ADB (android-tools package).
+
+* Download the script from Release and move it to the folder with platform-tools, or use git:
+    ```bash
+    git clone https://github.com/quinsaiz/bloatware-remove.git && cd bloatware-remove
     ```
-3. **Make it executable**:
+
+#### Run the script:
+
+* Give permission to execute the file:
     ```bash
     chmod +x script.sh
     ```
-4. **Run the script**:
+
+* Run the script:
     ```bash
     ./script.sh
     ```
+    
+### Instruction for Windows
 
-#### Instructions for Windows
+#### Create a work folder:
 
-1. **Install ADB or Move files from the platform-tools folder to the script folder.**
+* Unzip the archive from platform-tools or install ADB.
 
-2.  **Download the script:**
-Download the ZIP from GitHub and extract it.
-Or run:
-    ```cmd
-    git clone https://github.com/quinsaiz/bloatware-remove.git
-    cd bloatware-remove 
-    ```
-3.  **Open CMD: Navigate to the script folder in Command Prompt**
-    ```cmd
+* Download the `script.ps1` from Release and move it to the platform-tools folder.
+
+#### Run the script:
+
+* Open PowerShell.
+
+* Go to the folder with the script:
+    ```powershell
     cd path/to/bloatware-remove
     ```
-4.  **Run the script:**
-    ```cmd
-    script.bat
+
+* Set execution policy to be able to run scripts only in the current PowerShell session:
+    ```powershell
+    Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
     ```
+
+* Run the script:
+    ```powershell
+    .\script.ps1
+    ```
+  
 **Select an option:** Use numbers to navigate through the menu (for example, 1 for MIUI/HyperOS apps).
 
 **Actions:** Select "Uninstall", "Restore", "Disable", "Enable" for each program.
@@ -118,48 +131,60 @@ If you like this project, please give it a star on GitHub!
 ### Як використовувати
 #### Передумови
 
-1. **ADB (Android Debug Bridge):** Завантажте з [офіційного сайту Android](https://developer.android.com/tools/releases/platform-tools).
+1. **ADB (Android Debug Bridge):** Завантажте platform-tools з [офіційного сайту Android](https://developer.android.com/tools/releases/platform-tools).
+
 2. **USB-налагодження:** Увімкніть "Налагодження по USB" у налаштуваннях розробника на вашому пристрої.
+
 3. **Підключення:** Підключіть пристрій до комп’ютера через USB.
 
-#### Інструкція для Linux
+### Інструкція для Linux
 
-1. **Встановіть android-tools або перемістіть файли з папки platform-tools до папки script.**.
+#### Створення робочої папки:
 
-2. **Завантажте скрипт:**
+* Розпакуйте архів з platform-tools або Встановіть ADB (пакет android-tools).
+
+* Завантажте скрипт з Release та перемістіть його у папку з platform-tools, або використайте git:
     ```bash
-    git clone https://github.com/quinsaiz/bloatware-remove.git
-    cd bloatware-remove
+    git clone https://github.com/quinsaiz/bloatware-remove.git && cd bloatware-remove
     ```
-3. **Дайте права на виконання:**
+
+#### Запуск скрипта:
+
+* Дайте права на виконання:
     ```bash
     chmod +x script.sh
     ```
-4. **Запустіть скрипт:**
+
+* Запустіть скрипт:
     ```bash
     ./script.sh
     ```
-#### Інструкція для Windows
+    
+### Інструкція для Windows
 
-1. **Встановіть ADB або перемістіть файли з папки platform-tools до папки script.**.
+#### Створення робочої папки:
 
-1. **Завантажте скрипт:**
-Завантажте ZIP-архів з GitHub та розпакуйте його.
-Або виконайте:
-    ```cmd
-    git clone https://github.com/quinsaiz/bloatware-remove.git
-    cd bloatware-remove
-    ```
-2. **Відкрийте CMD:** 
-Перейдіть до папки зі скриптом у командному рядку.
+* Розпакуйте архів з platform-tools або Встановіть ADB.
 
-    ```cmd
+* Завантажте `script.ps1` з Release та перемістіть його у папку з platform-tools.
+
+#### Запуск скрипта:
+
+* Відкрийте PowerShell.
+
+* Перейдіть до папки зі скриптом у командному рядку:
+    ```powershell
     cd шлях/до/bloatware-remove
     ```
-3. **Запустіть скрипт:**
 
-    ```cmd
-    script.bat
+* Встановіть політику виконання, щоб мати змогу запускати сценарії лише у поточному сеансі PowerShell:
+    ```powershell
+    Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+    ```
+
+* Запустіть скрипт:
+    ```powershell
+    .\script.ps1
     ```
 
 **Виберіть опцію:** Використовуйте цифри для навігації по меню (наприклад, 1 для MIUI-програм).

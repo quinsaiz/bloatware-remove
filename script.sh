@@ -51,12 +51,13 @@ check_device() {
 
 main_menu() {
     clear
-    echo -e "${GREEN}=== MIUI/HyperOS bloatware app removal script by Quinsaiz ===${NC}"
+    echo -e "${GREEN}=== MIUI/HyperOS bloatware app removal script by Quinsaiz v1.02 ===${NC}"
     echo "1) MIUI/HyperOS system apps"
     echo "2) System utility"
     echo "3) Google apps"
     echo "4) Third-party apps"
-    echo "99) Restore Xiaomi Dialer & Messages"
+    echo "98) Restore Xiaomi Dialer & Messages"
+    echo "99) Manual package management"
     echo "0) Exit"
     echo "-------------------------"
     read -p "Select an option: " choice
@@ -66,7 +67,8 @@ main_menu() {
         2) utilities_menu ;;
         3) google_menu ;;
         4) third_party_menu ;;
-        99) restore_miui_dialer_messages ;;
+        98) restore_miui_dialer_messages ;;
+        99) manual_package_action ;;
         0) $ADB kill-server; echo -e "${GREEN}Good luck!${NC}"; exit 0 ;;
         *) echo -e "${RED}Wrong choice.${NC}"; sleep 1; main_menu ;;
     esac
@@ -634,6 +636,98 @@ restore_miui_dialer_messages() {
     main_menu
 }
 
+manual_package_action() {
+    clear
+    echo "=== Manual Package Management ==="
+    echo "Enter package names separated by space (e.g., 'com.example.app com.test.app'):"
+    read -r input
+    packages=($input)
+    
+    if [ ${#packages[@]} -eq 0 ]; then
+        echo "No packages entered."
+        echo "Press Enter to return..."
+        read
+        main_menu
+    fi
+    
+    echo "Checking status..."
+    status=""
+    for pkg in "${packages[@]}"; do
+        if $ADB shell pm list packages -u | grep -q "^package:$pkg$"; then
+            if $ADB shell pm list packages -d | grep -q "^package:$pkg$"; then
+                status="$status $pkg: Disabled"
+            elif $ADB shell pm list packages | grep -q "^package:$pkg$"; then
+                status="$status $pkg: Installed"
+            else
+                status="$status $pkg: Uninstalled"
+            fi
+        else
+            status="$status $pkg: Not installed"
+        fi
+    done
+    echo "Status:$status"
+    
+    echo "1) Uninstall"
+    echo "2) Disable"
+    echo "3) Restore"
+    echo "4) Enable"
+    echo "0) Return"
+    read -p "Select an action: " action
+    
+    case $action in
+        1)
+            for pkg in "${packages[@]}"; do
+                if $ADB shell pm list packages -u | grep -q "^package:$pkg$"; then
+                    if $ADB shell pm list packages | grep -q "^package:$pkg$"; then
+                        uninstall_package "$pkg"
+                    else
+                        echo "Package $pkg is already uninstalled."
+                    fi
+                else
+                    echo "Skipped $pkg: Not installed"
+                fi
+            done
+            ;;
+        2)
+            for pkg in "${packages[@]}"; do
+                if $ADB shell pm list packages -u | grep -q "^package:$pkg$"; then
+                    disable_package "$pkg"
+                else
+                    echo "Skipped $pkg: Not installed"
+                fi
+            done
+            ;;
+        3)
+            for pkg in "${packages[@]}"; do
+                if $ADB shell pm list packages -u | grep -q "^package:$pkg$"; then
+                    install_package "$pkg"
+                else
+                    echo "Skipped $pkg: Not installed, cannot restore"
+                fi
+            done
+            ;;
+        4)
+            for pkg in "${packages[@]}"; do
+                if $ADB shell pm list packages -u | grep -q "^package:$pkg$"; then
+                    enable_package "$pkg"
+                else
+                    echo "Skipped $pkg: Not installed"
+                fi
+            done
+            ;;
+        0)
+            main_menu
+            ;;
+        *)
+            echo "Invalid action selected."
+            ;;
+    esac
+    
+    echo "Press Enter to continue..."
+    read
+    main_menu
+}
+
 check_adb
 if [ "$ADB" = "./adb" ]; then
     $ADB kill-server > /dev/null 2>&1
@@ -643,5 +737,5 @@ else
     $ADB start-server > /dev/null 2>&1 || sudo $ADB start-server > /dev/null 2>&1
 fi
 check_device
-echo -e "${GREEN}MIUI/HyperOS bloatware app removal script by Quinsaiz${NC}"
+echo -e "${GREEN}MIUI/HyperOS bloatware app removal script by Quinsaiz v1.02${NC}"
 main_menu
