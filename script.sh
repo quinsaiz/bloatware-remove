@@ -51,12 +51,11 @@ check_device() {
 
 main_menu() {
     clear
-    echo -e "${GREEN}=== MIUI/HyperOS bloatware app removal script by Quinsaiz v1.02 ===${NC}"
+    echo -e "${GREEN}=== MIUI/HyperOS bloatware app removal script by Quinsaiz v1.10 ===${NC}"
     echo "1) MIUI/HyperOS system apps"
     echo "2) System utility"
     echo "3) Google apps"
     echo "4) Third-party apps"
-    echo "98) Restore Xiaomi Dialer & Messages"
     echo "99) Manual package management"
     echo "0) Exit"
     echo "-------------------------"
@@ -67,7 +66,6 @@ main_menu() {
         2) utilities_menu ;;
         3) google_menu ;;
         4) third_party_menu ;;
-        98) restore_miui_dialer_messages ;;
         99) manual_package_action ;;
         0) $ADB kill-server; echo -e "${GREEN}Good luck!${NC}"; exit 0 ;;
         *) echo -e "${RED}Wrong choice.${NC}"; sleep 1; main_menu ;;
@@ -492,7 +490,7 @@ check_package_status() {
     elif [ $total -eq $uninstalled ]; then
         echo -e "${BLUE}Not installed${NC}"
     else
-        echo -e "${CYAN}Partially installed{NC}"
+        echo -e "${CYAN}Partially installed${NC}"
     fi
 }
 
@@ -608,37 +606,10 @@ check_all_status() {
     $return_menu
 }
 
-restore_miui_dialer_messages() {
-    clear
-    echo -e "${GREEN}=== Restoring Xiaomi Dialer & Messages ===${NC}"
-
-    echo "Checking Xiaomi Dialer (com.android.contacts) in system..."
-    local dialer_output=$($ADB shell pm install-existing --user 0 com.android.contacts 2>&1)
-    if [[ "$dialer_output" =~ "installed" || -z "$dialer_output" ]]; then
-        echo -e "${GREEN}Xiaomi Dialer restored successfully from system!${NC}"
-    elif [[ "$dialer_output" =~ "doesn't exist" ]]; then
-        echo -e "${YELLOW}Xiaomi Dialer not found in system.${NC}"
-    else
-        echo -e "${RED}Error restoring Xiaomi Dialer from system: $dialer_output${NC}"
-    fi
-
-    echo "Checking Xiaomi Messages (com.android.mms) in system..."
-    local messages_output=$($ADB shell pm install-existing --user 0 com.android.mms 2>&1)
-    if [[ "$messages_output" =~ "installed" || -z "$messages_output" ]]; then
-        echo -e "${GREEN}Xiaomi Messages restored successfully from system!${NC}"
-    elif [[ "$messages_output" =~ "doesn't exist" ]]; then
-        echo -e "${YELLOW}Xiaomi Messages not found in system.${NC}"
-    else
-        echo -e "${RED}Error restoring Xiaomi Messages from system: $messages_output${NC}"
-    fi
-
-    read -p "Press Enter to continue..." -r
-    main_menu
-}
-
 manual_package_action() {
     clear
-    echo "=== Manual Package Management ==="
+    echo -e "${GREEN}=== Manual Package Management ===${NC}"
+    echo "Press Enter to exit."
     echo "Enter package names separated by space (e.g., 'com.example.app com.test.app'):"
     read -r input
     packages=($input)
@@ -655,23 +626,23 @@ manual_package_action() {
     for pkg in "${packages[@]}"; do
         if $ADB shell pm list packages -u | grep -q "^package:$pkg$"; then
             if $ADB shell pm list packages -d | grep -q "^package:$pkg$"; then
-                status="$status $pkg: Disabled"
+                status="$status $pkg: ${YELLOW}Disabled${NC}"
             elif $ADB shell pm list packages | grep -q "^package:$pkg$"; then
-                status="$status $pkg: Installed"
+                status="$status $pkg: ${GREEN}Installed${NC}"
             else
-                status="$status $pkg: Uninstalled"
+                status="$status $pkg: ${RED}Uninstalled${NC}"
             fi
         else
-            status="$status $pkg: Not installed"
+            status="$status $pkg: ${BLUE}Not installed${NC}"
         fi
     done
-    echo "Status:$status"
+    echo -e "Status:$status"
     
     echo "1) Uninstall"
     echo "2) Disable"
     echo "3) Restore"
     echo "4) Enable"
-    echo "0) Return"
+    echo "0) Return to main menu"
     read -p "Select an action: " action
     
     case $action in
@@ -681,10 +652,10 @@ manual_package_action() {
                     if $ADB shell pm list packages | grep -q "^package:$pkg$"; then
                         uninstall_package "$pkg"
                     else
-                        echo "Package $pkg is already uninstalled."
+                        echo -e "Package $pkg is already uninstalled."
                     fi
                 else
-                    echo "Skipped $pkg: Not installed"
+                    echo -e "Skipped $pkg: Not installed"
                 fi
             done
             ;;
@@ -693,7 +664,7 @@ manual_package_action() {
                 if $ADB shell pm list packages -u | grep -q "^package:$pkg$"; then
                     disable_package "$pkg"
                 else
-                    echo "Skipped $pkg: Not installed"
+                    echo -e"Skipped $pkg: Not installed"
                 fi
             done
             ;;
@@ -702,7 +673,7 @@ manual_package_action() {
                 if $ADB shell pm list packages -u | grep -q "^package:$pkg$"; then
                     install_package "$pkg"
                 else
-                    echo "Skipped $pkg: Not installed, cannot restore"
+                    echo -e"Skipped $pkg: Not installed, cannot restore"
                 fi
             done
             ;;
@@ -711,7 +682,7 @@ manual_package_action() {
                 if $ADB shell pm list packages -u | grep -q "^package:$pkg$"; then
                     enable_package "$pkg"
                 else
-                    echo "Skipped $pkg: Not installed"
+                    echo -e"Skipped $pkg: Not installed"
                 fi
             done
             ;;
@@ -725,7 +696,7 @@ manual_package_action() {
     
     echo "Press Enter to continue..."
     read
-    main_menu
+    manual_package_action
 }
 
 check_adb
@@ -737,5 +708,5 @@ else
     $ADB start-server > /dev/null 2>&1 || sudo $ADB start-server > /dev/null 2>&1
 fi
 check_device
-echo -e "${GREEN}MIUI/HyperOS bloatware app removal script by Quinsaiz v1.02${NC}"
+echo -e "${GREEN}MIUI/HyperOS bloatware app removal script by Quinsaiz v1.10${NC}"
 main_menu
