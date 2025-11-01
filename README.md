@@ -94,10 +94,11 @@ bloatware-remove/
 ├── LICENSE     # GPLv3 License
 └── README.md   # This file
 ```
+
 ## Author
 
-    Name: quinsaiz
-    GitHub: https://github.com/quinsaiz
+### quinsaiz
+GitHub: https://github.com/quinsaiz
 
 ## License
 
