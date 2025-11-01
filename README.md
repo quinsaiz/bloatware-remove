@@ -31,7 +31,8 @@ This tool allows you to quickly and conveniently remove or disable unnecessary s
 
 * Download the script from Release and move it to the folder with platform-tools, or use git:
     ```bash
-    git clone https://github.com/quinsaiz/bloatware-remove.git && cd bloatware-remove
+    git clone https://github.com/quinsaiz/bloatware-remove.git
+    cd bloatware-remove
     ```
 
 ### Run the script:
