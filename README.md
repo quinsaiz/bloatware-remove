@@ -10,11 +10,11 @@
 This tool allows you to quickly and conveniently remove or disable unnecessary system apps, utilities, Google apps, and third-party apps on devices running MIUI or HyperOS. The scripts are written in Bash (Linux) and PowerShell (Windows), making them versatile for different systems. Everything is alphabetically sorted, with clear menus and app statuses.
 
 ### Key Features:
-- 📱 Remove MIUI/HyperOS system apps (e.g., GetApps, Mi Browser).
-- ⚙️ Disable critical utilities (e.g., Quick Apps, Touch Assistant).
-- 🌐 Manage Google apps (YouTube, Gmail, etc.).
-- 🎮 Remove third-party apps (Netflix, Facebook, etc.).
-- ✅ Check app statuses via ADB.
+- Remove MIUI/HyperOS system apps (e.g., GetApps, Mi Browser).
+- Disable critical utilities (e.g., Quick Apps, Touch Assistant).
+- Manage Google apps (YouTube, Gmail, etc.).
+- Remove third-party apps (Netflix, Facebook, etc.).
+- Check app statuses via ADB.
 
 ## How to Use
 
